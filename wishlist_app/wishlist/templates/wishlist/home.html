@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}WISHLIST{% endblock %}</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'styles.css' %}"> {% endcomment %}
+</head>
+<body>
+    <h1>Wishlist</h1>
+    <nav>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:login' %}">Log in</a> |
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'wishlist:wishlist_list' %}">Books📚</a> |
+            {% comment %} <a href="{% url 'logout' %}" class="logout">Log out</a> {% endcomment %}
+        {% endif %}
+    </nav>  
+    {% block content %}
+    <!-- Тут буде контент підсторінок -->
+    {% endblock %}
+</body>
+</html>
