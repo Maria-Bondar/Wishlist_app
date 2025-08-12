@@ -1,0 +1,14 @@
+{% extends 'home.html' %}
+{% block content %}
+
+<h1>{{ wishlist.name }}</h1>
+<a href="{% url 'wishlist:item_create' wishlist.pk %}">Add new item</a>
+<ul>
+    {% for item in wishlist.items.all %}
+        <li>{{ item.title }} - {{ item.price }}</li>
+    {% empty %}
+        <li>No items yet.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

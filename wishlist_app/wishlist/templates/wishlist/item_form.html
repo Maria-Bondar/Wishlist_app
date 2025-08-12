@@ -1,0 +1,14 @@
+{% extends 'home.html' %}
+{% block content %}
+
+<h1>Add Item to "{{ wishlist.name }}"</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+
+<a href="{% url 'wishlist:wishlist_detail' wishlist.pk %}">Back to wishlist</a>
+
+{% endblock %}

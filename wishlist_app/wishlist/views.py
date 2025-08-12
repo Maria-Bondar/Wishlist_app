@@ -1,8 +1,71 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Item, Wishlist
+from django.contrib.auth.decorators import login_required
+
+from .forms import WishlistForm, ItemForm
 
 # Create your views here.
 def home(request):
-    return render(request, 'wishlist/home.html')
+    wishlists = Wishlist.objects.filter(user=request.user)
+    return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
+
+# @login_required
+# def wishlist_list(request):
+#     wishlists = Wishlist.objects.filter(user=request.user)
+#     return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
+
+@login_required
+def wishlist_detail(request, pk):
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+    return render(request, 'wishlist/wishlist_detail.html', {'wishlist': wishlist})
+
+@login_required
+def wishlist_create(request):
+    if request.method == 'POST':
+        form = WishlistForm(request.POST)
+        if form.is_valid():
+            wishlist = form.save(commit=False)
+            wishlist.user = request.user
+            wishlist.save()
+            return redirect('wishlist:wishlist_list')
+    else:
+        form = WishlistForm()
+    return render(request, 'wishlist/wishlist_form.html', {'form': form})
+
+@login_required
+def item_create(request, wishlist_pk):
+    wishlist = get_object_or_404(Wishlist, pk=wishlist_pk, user=request.user)
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.wishlist = wishlist
+            item.save()
+            return redirect('wishlist:wishlist_detail', pk=wishlist.pk)
+    else:
+        form = ItemForm()
+    return render(request, 'wishlist/item_form.html', {'form': form, 'wishlist': wishlist})
+
+
+
+# def wishlist_view(request):
+#     items = Item.objects.all().order_by('-price')
+#     return render(request, 'wishlist/wishlist.html', {'items': items})
+
+
+# def item_detail_view(request, pk):
+#     item = get_object_or_404(Item, pk=pk)
+#     return render(request, 'wishlist/detail.html', {'item': item})
+
+# def all_wishlists(request):
+#     items = Item.objects.all().order_by('-price')
+#     return render(request, 'wishlist/wishlist.html', {'items': items})
+
+# def create_wishlist(request):
+#     pass
+# def close_wishlist(request):
+#     pass
+
 # from django.shortcuts import render,redirect, get_object_or_404
 # from django.contrib import messages
 # from django.contrib.auth.decorators import  login_required
