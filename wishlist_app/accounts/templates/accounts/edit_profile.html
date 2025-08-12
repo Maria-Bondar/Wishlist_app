@@ -1,0 +1,90 @@
+{% extends "wishlist/home.html" %}
+
+{% block content %}
+  <h2>Edit Profile</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      <label for="{{ form.profile_pic.id_for_label }}">Profile Photo:</label><br>
+        {{ form.profile_pic.errors }}
+        {{ form.profile_pic }}
+    </div>
+
+    <div>
+      <label for="{{ form.bio.id_for_label }}">About me:</label><br>
+      {{ form.bio.errors }}
+      {{ form.bio }}
+    </div>
+
+<label>Likes:</label>
+  <div id="likes-container">
+    {% for interest in likes %}
+      <div class="like-item">
+        <input type="text" name="likes" value="{{ interest.name }}">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% empty %}
+      <div class="like-item">
+        <input type="text" name="likes" value="">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% endfor %}
+  </div>
+  <button type="button" id="add-like">+ Add Like</button>
+
+  <label>Dislikes:</label>
+  <div id="dislikes-container">
+    {% for interest in dislikes %}
+      <div class="dislike-item">
+        <input type="text" name="dislikes" value="{{ interest.name }}">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% empty %}
+      <div class="dislike-item">
+        <input type="text" name="dislikes" value="">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% endfor %}
+  </div>
+  <button type="button" id="add-dislike">+ Add Dislike</button>
+
+  <button type="submit">Save</button>
+</form>
+
+<script>
+  function makeItem(name = '', className = 'like-item', inputName = 'likes') {
+    const div = document.createElement('div');
+    div.className = className;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = inputName;
+    input.value = name;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'remove';
+    btn.innerText = '×';
+    btn.addEventListener('click', () => div.remove());
+    div.appendChild(input);
+    div.appendChild(btn);
+    return div;
+  }
+
+  document.getElementById('add-like').addEventListener('click', () => {
+    document.getElementById('likes-container').appendChild(makeItem('', 'like-item', 'likes'));
+  });
+
+  document.getElementById('add-dislike').addEventListener('click', () => {
+    document.getElementById('dislikes-container').appendChild(makeItem('', 'dislike-item', 'dislikes'));
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target.matches('.remove')) {
+      e.target.closest('div').remove();
+    }
+  });
+</script>
+
+{% endblock %}

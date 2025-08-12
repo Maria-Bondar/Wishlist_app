@@ -2,9 +2,24 @@
 
 {% block content %}
     <h2>Login</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        {% if form.errors %}
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
         <button type="submit">Log In</button>
     </form>
 

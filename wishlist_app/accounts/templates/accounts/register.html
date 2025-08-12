@@ -1,0 +1,20 @@
+{% extends "wishlist/home.html" %}
+
+{% block title %}
+    Register a new user
+{% endblock %}
+
+{% block content %}
+    <h2>Registration new user</h2>
+
+    <form class="form-with-validation" action="/accounts/register/" method="post">
+        {% csrf_token %}
+        {{ form.as_p}}
+        <button type="submit">Submit</button>
+    </form>
+
+    <p>Already have an account?</p>
+    <a href="{% url 'accounts:login' %}">
+        <button type="button" style="background-color:rgb(234, 128, 101)" class="butt">Log in</button>
+    </a>
+{% endblock %}

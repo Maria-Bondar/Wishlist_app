@@ -1,0 +1,50 @@
+{% extends "wishlist/home.html" %}
+{% load static %}
+
+{% block content %}
+  <h2>{{ user.username }}'s Profile</h2>
+
+  {% if user.userprofile.profile_pic %}
+    <div>
+      <img src="{{ user.userprofile.profile_pic.url }}" alt="Profile photo" style="max-width: 200px; height: auto;">
+    </div>
+  {% else %}
+    <p><em>No profile photo uploaded.</em></p>
+  {% endif %}
+
+  {% if user.userprofile %}
+    <p><strong>About me:</strong> {{ user.userprofile.bio|default:"No bio yet." }}</p>
+
+  <p><strong>Likes:</strong></p>
+    {% if user.userprofile.likes.exists %}
+      <ul>
+        {% for interest in user.userprofile.likes.all %}
+          <li>{{ interest.name }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <em>No likes specified.</em>
+    {% endif %}
+
+    <p><strong>Dislikes:</strong></p>
+    {% if user.userprofile.dislikes.exists %}
+      <ul>
+        {% for interest in user.userprofile.dislikes.all %}
+          <li>{{ interest.name }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <em>No dislikes specified.</em>
+    {% endif %}
+
+
+    <p>
+      <a href="{% url 'accounts:edit_profile' %}">Edit profile</a>
+    </p>
+  {% else %}
+    <p>You don't have a profile yet.</p>
+    <p>
+      <a href="{% url 'accounts:create_profile' %}" class="btn btn-primary">Create profile</a>
+    </p>
+  {% endif %}
+{% endblock %}

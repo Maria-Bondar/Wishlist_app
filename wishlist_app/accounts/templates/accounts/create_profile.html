@@ -1,0 +1,54 @@
+{% extends "wishlist/home.html" %}
+
+{% block content %}
+  <h2>Create profile</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      <label for="{{ form.bio.id_for_label }}">Bio:</label><br>
+      {{ form.bio.errors }}
+      {{ form.bio }}
+    </div>
+
+    <div>
+      <label for="{{ form.likes.id_for_label }}">Likes:</label><br>
+      {{ form.likes.errors }}
+      {{ form.likes }}
+    </div>
+
+    <div>
+      <label for="{{ form.dislikes.id_for_label }}">Dislikes:</label><br>
+      {{ form.dislikes.errors }}
+      {{ form.dislikes }}
+    </div>
+
+    <div>
+      <label for="{{ form.profile_pic.id_for_label }}">Profile pic:</label><br>
+      {{ form.profile_pic.errors }}
+      {{ form.profile_pic }}
+    </div>
+
+    <div>
+      <label for="{{ form.facebook.id_for_label }}">Facebook:</label><br>
+      {{ form.facebook.errors }}
+      {{ form.facebook }}
+    </div>
+
+    <div>
+      <label for="{{ form.twitter.id_for_label }}">Twitter:</label><br>
+      {{ form.twitter.errors }}
+      {{ form.twitter }}
+    </div>
+
+    <div>
+      <label for="{{ form.instagram.id_for_label }}">Instagram:</label><br>
+      {{ form.instagram.errors }}
+      {{ form.instagram }}
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}
