@@ -13,16 +13,40 @@
       {{ form.bio }}
     </div>
 
-    <div>
-      <label for="{{ form.likes.id_for_label }}">Likes:</label><br>
-      {{ form.likes.errors }}
-      {{ form.likes }}
-    </div>
+    <label>Likes:</label>
+  <div id="likes-container">
+    {% for interest in likes %}
+      <div class="like-item">
+        <input type="text" name="likes" value="{{ interest.name }}">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% empty %}
+      <div class="like-item">
+        <input type="text" name="likes" value="">
+        <button type="button" class="remove">×</button>
+      </div>
+    {% endfor %}
+  </div>
+  <button type="button" id="add-like">+ Add Like</button>
 
-    <div>
-      <label for="{{ form.dislikes.id_for_label }}">Dislikes:</label><br>
-      {{ form.dislikes.errors }}
-      {{ form.dislikes }}
+  <div>
+    <label>Dislikes:</label>
+    <div id="dislikes-container">
+      {% for interest in dislikes %}
+        <div class="dislike-item">
+          <input type="text" name="dislikes" value="{{ interest.name }}">
+          <button type="button" class="remove">×</button>
+        </div>
+      {% empty %}
+        <div class="dislike-item">
+          <input type="text" name="dislikes" value="">
+          <button type="button" class="remove">×</button>
+        </div>
+      {% endfor %}
+    </div>
+    <button type="button" id="add-dislike">+ Add Dislike</button>
+
+    <button type="submit">Save</button>
     </div>
 
     <div>

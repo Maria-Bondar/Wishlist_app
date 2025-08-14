@@ -1,20 +1,27 @@
 {% extends 'home.html' %}
 {% block content %}
+
 <h1>{{ item.title }}</h1>
 
 {% if item.image %}
     <img src="{{ item.image.url }}" alt="{{ item.title }}" style="max-width:300px;">
 {% endif %}
 
-<p>{{ item.description }}</p>
-
 {% if item.price %}
-<p>Price: {{ item.price }} грн</p>
+    <p>Price: {{ item.price }} </p>
+{% endif %}
+
+{% if item.description %}
+    <p>{{ item.description }}</p>
 {% endif %}
 
 {% if item.url %}
-<p><a href="{{ item.url }}" target="_blank">View on site</a></p>
+    <p><a href="{{ item.url }}" target="_blank">View on site</a></p>
 {% endif %}
-
-<a href="{% url 'wishlist:wishlist' %}">Back to wishlist</a>
+<p>
+<a href="{% url 'wishlist:item_edit' item.pk %}">Edit item</a>
+</p>
+<p>
+<a href="{% url 'wishlist:wishlist_detail' item.wishlist.pk %}">Back to wishlist</a>
+</p>
 {% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'home.html' %}
+{% load static %}
+{% block content %}
+
+<h1>{{ item.title }}</h1>
+
+<img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}" 
+     alt="{{ item.title }}" 
+     style="width:300px; height:300px; object-fit:cover;">
+
+{% if item.price %}
+<p>Price: {{ item.price }} грн</p>
+{% endif %}
+
+{% if item.description %}
+<p>Description: {{ item.description }}</p>
+{% endif %}
+
+{% if item.url %}
+<p>🔗 View product: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>
+{% endif %}
+
+<!-- Кнопка редагування/видалення тільки для власника -->
+{% if is_owner %}
+    <p>
+        <a href="{% url 'wishlist:item_edit' item.pk %}">Edit</a> | 
+        <a href="{% url 'wishlist:item_delete' item.pk %}">Delete</a>
+    </p>
+{% endif %}
+
+{% endblock %}

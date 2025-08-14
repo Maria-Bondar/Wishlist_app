@@ -15,8 +15,8 @@
         {% endif %} {% endcomment %}
 
         {% if user.is_authenticated %}
-            <a href="{% url 'wishlist:wishlist_list' %}">Wishlists</a> |
-            <a href="{% url 'accounts:profile' %}">Profile📚</a> |
+            <a href="{% url 'wishlist:wishlist_list'  %}">Wishlists</a> |
+            <a href="{% url 'accounts:profile' pk=user.userprofile.pk %}">Profile📚</a> |
             {% comment %} <a href="{% url 'logout' %}" class="logout">Log out</a> {% endcomment %}
         {% endif %}
     </nav>  

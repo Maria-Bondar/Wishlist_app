@@ -39,12 +39,11 @@
 
 
     <p>
-      <a href="{% url 'accounts:edit_profile' %}">Edit profile</a>
+      <a href="{% url 'accounts:edit_profile' pk=user.userprofile.pk  %}">Edit profile</a>
     </p>
   {% else %}
-    <p>You don't have a profile yet.</p>
     <p>
-      <a href="{% url 'accounts:create_profile' %}" class="btn btn-primary">Create profile</a>
+      <a href="{% url 'accounts:create_profile' pk=user.userprofile.pk  %}" class="btn btn-primary">Create profile</a>
     </p>
   {% endif %}
 {% endblock %}

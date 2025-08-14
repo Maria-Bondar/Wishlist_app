@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileForm, Interest
+from .models import UserProfile
 
 from .forms import EmailLoginForm, RegisterForm
 
@@ -15,7 +16,7 @@ def register_view(request):
         if form.is_valid():
             print("Success register")
             form.save()
-            return redirect('wishlist:home')
+            return redirect('home')
     else:
         print("Empty register")
         form = RegisterForm() 
@@ -29,22 +30,26 @@ def login_view(request):
             user = form.get_user()
             print("Success login")
             login(request, user)
-            return redirect('wishlist:home')
+            return redirect('home')
     else:
         print("Empty login")
         form = EmailLoginForm()
     return render(request, 'accounts/login.html', {'form': form})
 
+def logout_view(request):
+    logout(request)
+    return redirect('accounts:login')
+
 @login_required
-def profile_view(request):
+def profile_view(request, pk):
+    profile = get_object_or_404(UserProfile, pk=pk)
     return render(request, 'accounts/profile.html', {
-        'user': request.user,
+        'profile': profile,
     })
 
-
 @login_required
-def edit_profile(request):
-    profile = request.user.userprofile
+def edit_profile(request, pk):
+    profile = get_object_or_404(UserProfile, pk=pk)
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
@@ -68,7 +73,7 @@ def edit_profile(request):
                 if name.strip():
                     interest, _ = Interest.objects.get_or_create(name=name.strip())
                     profile.dislikes.add(interest)
-            return redirect('accounts:profile')
+            return redirect('accounts:profile', pk=profile.pk)
         else:
             print(form.errors)
     else:
@@ -86,7 +91,7 @@ def create_profile(request):
     # Перевірка, чи профіль вже є
     if hasattr(user, 'userprofile'):
         # Можна перенаправити на редагування профілю або профіль
-        return redirect('accounts:edit_profile')
+        return redirect('accounts:edit_profile', pk=profile.pk)
     
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES)
@@ -107,7 +112,7 @@ def create_profile(request):
                 interest, _ = Interest.objects.get_or_create(name=name)
                 profile.dislikes.add(interest)
 
-            return redirect('accounts:profile_detail', pk=profile.pk)
+            return redirect('accounts:profile', pk=profile.pk)
     else:
         form = UserProfileForm()
     return render(request, 'accounts/create_profile.html', {'form': form})

@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 from django.conf import settings
 
+import os
+import uuid
+from django.utils.deconstruct import deconstructible
+
 # Create your models here.
 
 class CustomUser(AbstractUser):
@@ -14,10 +18,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
-
-import os
-import uuid
-from django.utils.deconstruct import deconstructible
 
 @deconstructible
 class PathAndRename:
