@@ -1,27 +1,20 @@
 {% extends 'home.html' %}
+{% load static %}
+
 {% block content %}
 
 <h1>{{ item.title }}</h1>
 
-{% if item.image %}
-    <img src="{{ item.image.url }}" alt="{{ item.title }}" style="max-width:300px;">
-{% endif %}
+<img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}" 
+     alt="{{ item.title }}" style="width:300px;height:300px;object-fit:cover;">
 
-{% if item.price %}
-    <p>Price: {{ item.price }} </p>
-{% endif %}
+{% if item.price %}<p>Price: {{ item.price }}</p>{% endif %}
+{% if item.description %}<p>Description: {{ item.description }}</p>{% endif %}
+{% if item.url %}<p>Link: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>{% endif %}
 
-{% if item.description %}
-    <p>{{ item.description }}</p>
-{% endif %}
+<p>Reserved: {% if item.is_reserved %}Yes{% else %}No{% endif %}</p>
 
-{% if item.url %}
-    <p><a href="{{ item.url }}" target="_blank">View on site</a></p>
-{% endif %}
-<p>
-<a href="{% url 'wishlist:item_edit' item.pk %}">Edit item</a>
-</p>
-<p>
-<a href="{% url 'wishlist:wishlist_detail' item.wishlist.pk %}">Back to wishlist</a>
-</p>
+<a href="{% url 'wishlist:item_edit' item.pk %}">Edit</a> |
+<a href="{% url 'wishlist:item_delete' item.pk %}">Delete</a>
+
 {% endblock %}

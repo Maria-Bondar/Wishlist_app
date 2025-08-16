@@ -1,4 +1,5 @@
 {% extends "home.html" %}
+{% comment %} 
 
 {% block content %}
   <h2>Create profile</h2>
@@ -75,4 +76,108 @@
 
     <button type="submit">Submit</button>
   </form>
+{% endblock %} {% endcomment %}
+
+{% block content %}
+<h2>Create profile</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+
+  <div>
+    <label for="{{ form.profile_pic.id_for_label }}">Profile pic:</label><br>
+    {{ form.profile_pic.errors }}
+    {{ form.profile_pic }}
+  </div>
+
+  <div>
+    <label for="{{ form.bio.id_for_label }}">Bio:</label><br>
+    {{ form.bio.errors }}
+    {{ form.bio }}
+  </div>
+
+  <!-- Likes -->
+  <div>
+    <h4>Choose what you like:</h4>
+    {% for interest in all_interests_likes %}
+      <label>
+        <input type="checkbox" name="likes_existing" value="{{ interest.id }}">
+        {{ interest.name }}
+      </label><br>
+    {% endfor %}
+
+    <h4>Add new likes:</h4>
+    <div id="likes-new-container"></div>
+    <button type="button" id="add-like">+ Add my own</button>
+  </div>
+
+  <!-- Dislikes -->
+  <div>
+    <h4>Choose what you don't like:</h4>
+    {% for interest in all_interests_dislikes %}
+      <label>
+        <input type="checkbox" name="dislikes_existing" value="{{ interest.id }}">
+        {{ interest.name }}
+      </label><br>
+    {% endfor %}
+
+    <h4>Add new dislikes:</h4>
+    <div id="dislikes-new-container"></div>
+    <button type="button" id="add-dislike">+ Add my own</button>
+  </div>
+
+  <div>
+    <label for="{{ form.facebook.id_for_label }}">Facebook:</label><br>
+    {{ form.facebook.errors }}
+    {{ form.facebook }}
+  </div>
+
+  <div>
+    <label for="{{ form.twitter.id_for_label }}">Twitter:</label><br>
+    {{ form.twitter.errors }}
+    {{ form.twitter }}
+  </div>
+
+  <div>
+    <label for="{{ form.instagram.id_for_label }}">Instagram:</label><br>
+    {{ form.instagram.errors }}
+    {{ form.instagram }}
+  </div>
+
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+function makeItem(inputName, placeholder) {
+  const div = document.createElement('div');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.name = inputName;
+  input.placeholder = placeholder;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'remove';
+  btn.innerText = '×';
+  btn.addEventListener('click', () => div.remove());
+  div.appendChild(input);
+  div.appendChild(btn);
+  return div;
+}
+
+document.getElementById('add-like').addEventListener('click', () => {
+  document.getElementById('likes-new-container').appendChild(makeItem('likes_new', 'Add new like'));
+});
+
+document.getElementById('add-dislike').addEventListener('click', () => {
+  document.getElementById('dislikes-new-container').appendChild(makeItem('dislikes_new', 'Add new dislike'));
+});
+
+document.addEventListener('click', function(e) {
+  if (e.target.matches('.remove')) {
+    e.target.closest('div').remove();
+  }
+});
+</script>
+
 {% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'home.html' %}
+{% block content %}
+<h2>Delete Wishlist</h2>
+<p>Are you sure you want to delete "{{ wishlist.name }}"?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="background:red; color:white; padding:5px 10px; border:none; border-radius:5px;">Yes, delete</button>
+    <a href="{% url 'wishlist:wishlist_list' %}" style="margin-left:10px;">Cancel</a>
+</form>
+{% endblock %}

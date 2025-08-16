@@ -1,0 +1,19 @@
+{% extends 'home.html' %}
+{% load static %}
+{% block content %}
+<h2>Friends' Wishlists</h2>
+
+<ul>
+    <div class="wishlists-container">
+    {% for wishlist in wishlists %}
+    <div class="wishlist-card">
+        <li>
+            <a href="{{ wishlist.get_absolute_url }}">
+                {{ wishlist.name }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No wishlists shared with you yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

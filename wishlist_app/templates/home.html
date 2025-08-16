@@ -4,24 +4,50 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}WISHLIST{% endblock %}</title>
-    {% comment %} <link rel="stylesheet" href="{% static 'styles.css' %}"> {% endcomment %}
+    <title>{% block title %}Wishlist{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <h1>Wishlist</h1>
-    <nav>
-        {% comment %} {% if not user.is_authenticated %}
-            <a href="{% url 'accounts:login' %}">Log in</a> |
-        {% endif %} {% endcomment %}
+    <header>
+        <h1>Wishlist</h1>
+    </header>
 
+    <aside class="sidebar">
+        <div class="sidebar-header">
+        <a href="{% url 'wishlist:wishlist_list' %}">
+            <h2>Gifty</h2>
+        </a>
+    </div>
         {% if user.is_authenticated %}
-            <a href="{% url 'wishlist:wishlist_list'  %}">Wishlists</a> |
-            <a href="{% url 'accounts:profile' pk=user.userprofile.pk %}">Profile📚</a> |
-            {% comment %} <a href="{% url 'logout' %}" class="logout">Log out</a> {% endcomment %}
+            <nav>
+                <ul>
+                    <li><a href="{% url 'wishlist:wishlist_list' %}">My Wishlists</a></li>
+                    <li><a href="{% url 'wishlist:friends_wishlists' %}">Friends' Wishlists</a></li>
+
+                    {% if user.userprofile %}
+                        <li><a href="{% url 'accounts:profile' pk=user.userprofile.pk %}">Profile 📚</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:create_profile' %}">Create Profile</a></li>
+                    {% endif %}
+
+                    <li><a href="{% url 'accounts:logout' %}">Log out</a></li>
+                </ul>
+            </nav>
+        {% else %}
+            {% if request.resolver_match.url_name != 'login' %}
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'accounts:login' %}">Log in</a></li>
+                    </ul>
+                </nav>
+            {% endif %}
         {% endif %}
-    </nav>  
-    {% block content %}
-    <!-- Тут буде контент підсторінок -->
-    {% endblock %}
+    </aside>
+
+    <main class="content">
+        {% block content %}
+        <!-- Page content goes here -->
+        {% endblock %}
+    </main>
 </body>
 </html>

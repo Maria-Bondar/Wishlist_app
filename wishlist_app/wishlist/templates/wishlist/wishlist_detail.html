@@ -2,68 +2,227 @@
 {% load static %}
 {% block content %}
 
-<h1>{{ wishlist.name }}</h1>
-<a href="{% url 'wishlist:item_create' wishlist.pk %}">Add new item</a>
+<h1>
+    {{ wishlist.name }}
+    {% if is_owner %}
+    <button id="wishlistDeleteBtn">Delete</button>
+    {% endif %}
+</h1>
 
-<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
-  {% for item in wishlist.items.all %}
-  <div style="position: relative; width: 200px; border: 1px solid #ccc; padding: 10px; border-radius: 8px; text-align: center;">
-
-      <!-- Кнопка видалення -->
-      <form action="{% url 'wishlist:item_delete' item.pk %}" method="post" style="position: absolute; top: 5px; right: 5px; margin: 0;">
-        {% csrf_token %}
-        <button type="submit" style="
-          background: #f44336; 
-          border: none; 
-          color: white; 
-          font-weight: bold; 
-          cursor: pointer; 
-          border-radius: 50%; 
-          width: 24px; 
-          height: 24px; 
-          line-height: 20px;
-          padding: 0;
-        ">×</button>
-      </form>
-      
-      <a href="{% url 'wishlist:item_detail' item.pk %}">
-        <img 
-          src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}"  
-          alt="{{ item.title }}" 
-          style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;"
-        >
-      </a>
-      <h3 style="margin: 10px 0 5px 0; font-size: 1.1em; color: #333;">{{ item.title }}</h3>
-      {% if item.price %}
-        <p style="color: #555; font-weight: bold;">{{ item.price }} грн</p>
-      {% endif %}
+<!-- Модалка видалення ВЕСЬОГО списку -->
+<div id="deleteConfirm">
+    <p>Are you sure you want to delete this wishlist?</p>
+    <div class="buttons">
+        <form id="deleteForm" action="{% url 'wishlist:wishlist_delete' wishlist.pk %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn">Yes, delete</button>
+        </form>
+        <button id="cancelDelete" class="cancel-btn" type="button">Cancel</button>
     </div>
-  {% empty %}
-    <p>No items yet.</p>
-  {% endfor %}
-  <p>
-    <a href="#" class="copy-link" data-url="{{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}">🔗 Поділитися</a>
-    <span class="copy-msg" style="display:none; color:green; margin-left:10px;">Скопійовано!</span>
-  </p>
 </div>
 
+{% if is_owner and wishlist.items.all|length %}
+<div class="share-section">
+    <p>
+        <strong>Share your wishlist:</strong>
+        
+        <!-- Copy Link -->
+        <a href="#" class="copy-link" data-url="{{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}">
+           🔗 Copy Link
+        </a>
+        <span class="copy-msg" style="display:none; color:green; margin-left:10px;">Copied!</span>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <!-- WhatsApp -->
+        <a href="https://wa.me/?text=Check%20out%20this%20wishlist%20{{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}"
+          target="_blank" style="font-size:32px; color:#25D366;">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+
+        <!-- Telegram -->
+        <a href="https://t.me/share/url?url={{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}&text=Check%20out%20this%20wishlist"
+          target="_blank" style="font-size:32px; color:#0088cc;">
+          <i class="fab fa-telegram"></i>
+        </a>
+
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}"
+          target="_blank" style="font-size:32px; color:#1877F2;">
+          <i class="fab fa-facebook"></i>
+        </a>
+    </p>
+</div>
+{% endif %}
+
+<!-- Список елементів -->
+<div class="wishlist-container">
+    {% if is_owner %}
+    <!-- Картка "Add new item" -->
+    <div class="wishlist-item add-item">
+        <a href="{% url 'wishlist:item_create' wishlist.pk %}" class="add-item-link">
+            <div class="add-item-plus">＋</div>
+            <div class="add-item-text">Add new item</div>
+        </a>
+    </div>
+    {% endif %}
+
+    {% for item in wishlist.items.all %}
+    <div class="wishlist-item">
+      {% if is_owner %}
+        <!-- Кнопка видалення елемента -->
+        <button type="button" class="delete-item-btn" data-url="{% url 'wishlist:item_delete' item.pk %}" aria-label="Delete item">×</button>
+      {% endif %}
+        
+        <a href="{% url 'wishlist:item_detail' item.pk %}">
+          <img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}"
+              alt="{{ item.title }}" class="wishlist-img">
+        </a>
+
+        <h3 class="wishlist-title">{{ item.title }}</h3>
+
+        {% if item.price %}
+          <p class="wishlist-price">{{ item.price }} грн</p>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>No items yet.</p>
+    {% endfor %}
+</div>
+
+<!-- Модалка видалення ОКРЕМОГО елемента -->
+<div id="itemDeleteConfirm" class="item-delete-popup">
+    <p id="deleteMessage">Are you sure you want to delete this gift?</p>
+    <form id="itemDeleteForm" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn">Yes, delete</button>
+    </form>
+    <button id="cancelItemDelete" class="cancel-btn" type="button">Cancel</button>
+</div>
+
+<!-- Напівпрозорий фон для обох модалок -->
+<div id="overlay" style="display:none;"></div>
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const links = document.querySelectorAll('.copy-link');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
+document.addEventListener("DOMContentLoaded", function () {
+    // ===== Копіювання лінка =====
+    document.querySelectorAll(".copy-link").forEach(link => {
+        link.addEventListener("click", function (e) {
             e.preventDefault();
-            const url = link.dataset.url;
-            navigator.clipboard.writeText(url)
-                .then(() => {
-                    const msg = link.nextElementSibling; // <span> поруч
-                    msg.style.display = 'inline';
-                    setTimeout(() => { msg.style.display = 'none'; }, 2000); // сховати через 2 сек
-                })
-                .catch(err => console.error("Помилка копіювання: ", err));
+            const url = this.dataset.url;
+            navigator.clipboard.writeText(url).then(() => {
+                const msg = this.nextElementSibling;
+                if (msg && msg.classList.contains('copy-msg')) {
+                    msg.style.display = "inline";
+                    setTimeout(() => (msg.style.display = "none"), 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Link copied to clipboard!');
+            });
         });
     });
+
+    // ===== Елементи модалок =====
+    const overlay            = document.getElementById("overlay");
+    const listConfirm        = document.getElementById("deleteConfirm");
+    const cancelDelete       = document.getElementById("cancelDelete");
+    const wishlistDeleteBtn  = document.getElementById("wishlistDeleteBtn");
+
+    const itemConfirm        = document.getElementById("itemDeleteConfirm");
+    const itemDeleteForm     = document.getElementById("itemDeleteForm");
+    const deleteMessage      = document.getElementById("deleteMessage");
+    const cancelItemDelete   = document.getElementById("cancelItemDelete");
+
+    // Функції для роботи з модалками
+    function openModal(modalElement) {
+        if (!modalElement || !overlay) return;
+        modalElement.style.display = "block";
+        overlay.style.display = "block";
+        document.body.style.overflow = "hidden"; // Блокуємо скрол
+    }
+    
+    function closeAllModals() {
+        if (listConfirm) listConfirm.style.display = "none";
+        if (itemConfirm) itemConfirm.style.display = "none";
+        if (overlay) overlay.style.display = "none";
+        document.body.style.overflow = ""; // Відновлюємо скрол
+    }
+
+    // ===== Відкрити модалку видалення списку =====
+    if (wishlistDeleteBtn && listConfirm && overlay) {
+        wishlistDeleteBtn.addEventListener("click", function() {
+            openModal(listConfirm);
+        });
+    }
+    
+    if (cancelDelete) {
+        cancelDelete.addEventListener("click", closeAllModals);
+    }
+
+    // ===== Відкрити модалку видалення елемента =====
+    function attachDeleteButtons() {
+        document.querySelectorAll(".delete-item-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                console.log("Delete button clicked"); // Для відлагодження
+                
+                if (!itemConfirm || !itemDeleteForm) {
+                    console.log("Modal elements not found");
+                    return;
+                }
+                
+                const url = this.dataset.url;
+                const wishlistItem = this.closest(".wishlist-item");
+                const titleElement = wishlistItem?.querySelector(".wishlist-title");
+                const giftTitle = titleElement?.textContent?.trim() || "this gift";
+
+                console.log("Delete URL:", url); // Для відлагодження
+                console.log("Gift title:", giftTitle); // Для відлагодження
+
+                // Встановлюємо URL для форми
+                itemDeleteForm.setAttribute("action", url);
+                
+                // Оновлюємо текст повідомлення
+                if (deleteMessage) {
+                    deleteMessage.textContent = `Are you sure you want to delete "${giftTitle}"?`;
+                }
+                
+                openModal(itemConfirm);
+            });
+        });
+    }
+
+    // Викликаємо функцію прив'язки кнопок
+    attachDeleteButtons();
+
+    // ===== Закриття модалок =====
+    if (cancelItemDelete) {
+        cancelItemDelete.addEventListener("click", closeAllModals);
+    }
+    
+    if (overlay) {
+        overlay.addEventListener("click", closeAllModals);
+    }
+
+    // Закриття модалок по Escape
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeAllModals();
+        }
+    });
+
+    // Запобігання закриттю при кліку на саму модалку
+    if (listConfirm) {
+        listConfirm.addEventListener("click", function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    if (itemConfirm) {
+        itemConfirm.addEventListener("click", function(e) {
+            e.stopPropagation();
+        });
+    }
 });
 </script>
-
 {% endblock %}

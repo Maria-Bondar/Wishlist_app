@@ -1,15 +1,38 @@
-{% extends 'home.html' %}
+{% extends 'home.html' %} 
 {% load static %}
 {% block content %}
 
 <h1>{{ item.title }}</h1>
+
+{% if item.is_reserved %}
+    {% if item.reserved_by == request.user %}
+        <p>You have reserved this gift</p>
+        <form action="{% url 'wishlist:cancel_reservation' item.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" style="background-color:red; color:white; padding:8px 12px; border:none; border-radius:5px;">
+                ❌ Cancel Reservation
+            </button>
+        </form>
+    {% else %}
+        <p>This gift is reserved</p>
+    {% endif %}
+{% else %}
+    {% if not is_owner %}
+        <form action="{% url 'wishlist:reserve_item' item.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" style="background-color:green; color:white; padding:8px 12px; border:none; border-radius:5px;">
+                🎁 Reserve
+            </button>
+        </form>
+    {% endif %}
+{% endif %}
 
 <img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}" 
      alt="{{ item.title }}" 
      style="width:300px; height:300px; object-fit:cover;">
 
 {% if item.price %}
-<p>Price: {{ item.price }} грн</p>
+<p>Price: {{ item.price }} UAH</p>
 {% endif %}
 
 {% if item.description %}
@@ -20,12 +43,19 @@
 <p>🔗 View product: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>
 {% endif %}
 
-<!-- Кнопка редагування/видалення тільки для власника -->
+<!-- Edit/Delete buttons only for the owner -->
 {% if is_owner %}
     <p>
         <a href="{% url 'wishlist:item_edit' item.pk %}">Edit</a> | 
         <a href="{% url 'wishlist:item_delete' item.pk %}">Delete</a>
     </p>
 {% endif %}
+
+<!-- Посилання повернутися до вішліста -->
+<p>
+    <a href="{{ item.wishlist.get_absolute_url }}" style="text-decoration:underline;">
+        ← Back to Wishlist
+    </a>
+</p>
 
 {% endblock %}

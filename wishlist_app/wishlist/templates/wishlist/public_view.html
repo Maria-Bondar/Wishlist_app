@@ -4,50 +4,47 @@
 
 <h1>{{ wishlist.name }}</h1>
 
-<!-- Кнопка додати новий item лише для власника -->
 {% if user.is_authenticated and user == wishlist.user %}
     <a href="{% url 'wishlist:item_create' wishlist.pk %}">Add new item</a>
 {% endif %}
 
-<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
+<link rel="stylesheet" href="{% static 'css/wishlist.css' %}">
+
+<div class="wishlist-container">
   {% for item in wishlist.items.all %}
-    <div style="position: relative; width: 200px; border: 1px solid #ccc; padding: 10px; border-radius: 8px; text-align: center;">
-        
-        <!-- Кнопка видалення лише для власника -->
-        {% if user.is_authenticated and user == wishlist.user %}
-            <form action="{% url 'wishlist:item_delete' item.pk %}" method="post" style="position: absolute; top: 5px; right: 5px; margin: 0;">
-                {% csrf_token %}
-                <button type="submit" style="
-                  background: #f44336; 
-                  border: none; 
-                  color: white; 
-                  font-weight: bold; 
-                  cursor: pointer; 
-                  border-radius: 50%; 
-                  width: 24px; 
-                  height: 24px; 
-                  line-height: 20px;
-                  padding: 0;
-                ">×</button>
-            </form>
-        {% endif %}
-        
-        <!-- Зображення предмета з посиланням на деталі -->
-        <a href="{% url 'wishlist:item_detail' item.pk %}">
-            <img 
-              src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}"  
-              alt="{{ item.title }}" 
-              style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;"
-            >
-        </a>
-        
-        <h3 style="margin: 10px 0 5px 0; font-size: 1.1em; color: #333;">{{ item.title }}</h3>
-        {% if item.price %}
-          <p style="color: #555; font-weight: bold;">{{ item.price }} грн</p>
-        {% endif %}
+  <div class="wishlist-item {% if item.is_reserved %}reserved{% endif %}">
+          
+      {% if item.is_reserved %}
+        <div class="reserved-label">🔒 Reserved</div>
+        </br>
+      {% endif %}
+
+      {% if user.is_authenticated and user == wishlist.user %}
+        <form action="{% url 'wishlist:item_delete' item.pk %}" method="post" class="delete-form" style="position:absolute; top:5px; right:5px; margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="delete-btn">×</button>
+        </form>
+      {% endif %}
+
+      <a href="{% url 'wishlist:item_detail' item.pk %}">
+        <img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}"
+             alt="{{ item.title }}"
+             class="wishlist-img">
+      </a>
+
+      <h3 class="wishlist-title">
+        {{ item.title }}
+      </h3>
+
+      {% if item.price %}
+        <p class="wishlist-price">
+          {{ item.price }} грн
+        </p>
+      {% endif %}
     </div>
   {% empty %}
     <p>No items yet.</p>
   {% endfor %}
+</div>
 
 {% endblock %}

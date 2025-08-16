@@ -2,25 +2,30 @@ from django.db import models
 import os
 import uuid
 from django.utils.deconstruct import deconstructible
+from django.utils import timezone
 
 from django.conf import settings
 from django.urls import reverse
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 
 # Create your models here.
 
 class Wishlist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlists')
     name = models.CharField(max_length=200, default="My Wishlist")
-    
     code = models.SlugField(max_length=50, editable=False, blank=True, null=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
-
     
+    image = models.ImageField(upload_to='wishlist_images/', blank=True, null=True)
+    
+    shared_with = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='shared_wishlists',
+        blank=True
+    )    
     def __str__(self):
         return f"{self.user.username}'s wishlist: {self.name}"
-    
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -35,6 +40,14 @@ class Wishlist(models.Model):
 
     def get_absolute_url(self):
         return reverse('wishlist:public_view', args=[self.code, slugify(self.name)])
+    
+class WishlistShare(models.Model):
+    wishlist = models.ForeignKey(Wishlist, on_delete=models.CASCADE, related_name='shares')
+    shared_with = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    shared_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('wishlist', 'shared_with')
     
 @deconstructible
 class PathAndRename:
@@ -55,6 +68,29 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     image = models.ImageField(upload_to=path_and_rename, blank=True, null=True)
     description = models.TextField(blank=True)
+    is_reserved = models.BooleanField(default=False)
+    reserved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reserved_items'
+    )
+    reserved_at = models.DateTimeField(null=True, blank=True)
+        
+    def reserve(self, user):
+        if self.is_reserved:
+            raise ValueError("This item is already reserved.")
+        self.is_reserved = True
+        self.reserved_by = user
+        self.save()
+
+    def cancel_reservation(self, user):
+        if self.reserved_by != user:
+            raise ValueError("You can only cancel your own reservation.")
+        self.is_reserved = False
+        self.reserved_by = None
+        self.save()
 
     def __str__(self):
         return self.title

@@ -1,9 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Item, Wishlist
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-from .forms import WishlistForm, ItemForm
 import re
+import uuid
+import requests
+from bs4 import BeautifulSoup
+from django.core.files.base import ContentFile
+from django.http import HttpResponseForbidden
+
+from .forms import WishlistForm, ItemForm, WishlistImageForm
+from .models import Item, Wishlist, WishlistShare
+
 
 # Create your views here.
 @login_required
@@ -17,14 +25,42 @@ def wishlist_list(request):
     return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
 
 
+@login_required
 def public_wishlist(request, code, name):
     wishlist = get_object_or_404(Wishlist, code=code)
-    return render(request, 'wishlist/public_view.html', {'wishlist': wishlist})
+    
+    is_owner = request.user.is_authenticated and request.user == wishlist.user
+
+    # якщо це не власник і він залогінений — додаємо у Friends' Wishlists
+    if request.user.is_authenticated and not is_owner:
+        WishlistShare.objects.get_or_create(
+            wishlist=wishlist,
+            shared_with=request.user
+        )
+
+    return render(
+        request,
+        'wishlist/public_view.html',
+        {
+            'wishlist': wishlist,
+            'is_owner': is_owner
+        }
+    )
 
 @login_required
 def wishlist_detail(request, pk):
-    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
-    return render(request, 'wishlist/wishlist_detail.html', {'wishlist': wishlist})
+    # wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+    # return render(request, 'wishlist/wishlist_detail.html', {'wishlist': wishlist})
+    wishlist = get_object_or_404(Wishlist, pk=pk)
+    is_owner = wishlist.user == request.user
+    return render(
+        request,
+        'wishlist/wishlist_detail.html',
+        {
+            'wishlist': wishlist,
+            'is_owner': is_owner
+        }
+    )
 
 @login_required
 def wishlist_create(request):
@@ -39,15 +75,16 @@ def wishlist_create(request):
         form = WishlistForm()
     return render(request, 'wishlist/wishlist_form.html', {'form': form})
 
-import uuid
-import requests
-from bs4 import BeautifulSoup
-from django.core.files.base import ContentFile
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from .models import Wishlist, Item
-from .forms import ItemForm
+
+@login_required
+def wishlist_delete(request, pk):
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        wishlist.delete()
+        messages.success(request, f"Wishlist '{wishlist.name}' was deleted.")
+        return redirect('wishlist:wishlist_list') 
+    return render(request, 'wishlist/wishlist_confirm_delete.html', {'wishlist': wishlist})
 
 def scrape_product_data(url):
     try:
@@ -86,15 +123,10 @@ def scrape_product_data(url):
         image_url = img_tag['content'] if img_tag else ''
         print("DEBUG image_url:", image_url)
 
-        # ===== Опис =====
-        desc_tag = soup.find('div', class_=re.compile(r'description', re.I))
-        description = desc_tag.get_text("\n", strip=True) if desc_tag else ''
-
         return {
             'title': title,
             'price': price,
             'image_url': image_url,
-            'description': description,
         }
     except Exception as e:
         print('Scrape error:', e)
@@ -151,6 +183,7 @@ def public_item_detail(request, pk):
         'wishlist': wishlist,
         'is_owner': request.user.is_authenticated and request.user == wishlist.user
     })
+    
 
 def item_edit(request, pk):
     item = get_object_or_404(Item, pk=pk)
@@ -193,6 +226,14 @@ def item_edit(request, pk):
     return render(request, 'wishlist/item_edit.html', {'form': form, 'item': item})
 
 @login_required
+def item_detail(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    # Перевірка власника
+    if item.wishlist.user != request.user:
+        return redirect('wishlist:public_item_detail', pk=item.pk)
+    return render(request, 'wishlist/item_detail.html', {'item': item})
+
+@login_required
 def item_delete(request, pk):
     item = get_object_or_404(Item, pk=pk)
     if item.wishlist.user != request.user:
@@ -203,3 +244,80 @@ def item_delete(request, pk):
         return redirect('wishlist:wishlist_detail', pk=wishlist_pk)
     return render(request, 'wishlist/item_confirm_delete.html', {'item': item})
 
+
+@login_required
+def reserve_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+
+    # Власник не може бронювати власні речі
+    if item.wishlist.user == request.user:
+        messages.error(request, "You cannot reserve your own gifts.")
+        return redirect('wishlist:public_item_detail', pk=item.pk)
+
+    if request.method == "POST":
+        try:
+            item.reserve(request.user)
+            messages.success(request, f"You reserved a gift: {item.title}")
+        except ValueError as e:
+            messages.error(request, str(e))
+        return redirect('wishlist:public_item_detail', pk=item.pk)
+
+    return render(request, 'wishlist/item_confirm_reserve.html', {'item': item})
+# def reserve_item(request, pk):
+#     item = get_object_or_404(Item, pk=pk)
+
+#     # Власник не може бронювати власні речі
+#     if item.wishlist.user == request.user:
+#         messages.error(request, "You cannot reserve your own gifts.")
+#         return redirect('wishlist:public_item_detail', pk=item.pk)
+    
+#     if request.method == "POST":
+#         try:
+#             item.reserve(request.user)
+#             messages.success(request, f"You reserved a gift: {item.title}")
+#         except ValueError as e:
+#             messages.error(request, str(e))
+#         return redirect('wishlist:public_item_detail', pk=item.pk)
+#         # оновлюємо стан із бази
+
+#     # GET-запит — показуємо підтвердження
+#     return render(request, 'wishlist/item_confirm_reserve.html', {'item': item})
+
+@login_required
+def cancel_reservation(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+
+    if request.method == "POST":
+        try:
+            item.cancel_reservation(request.user)
+            messages.success(request, f"You cancelled the reservation for: {item.title}")
+        except ValueError as e:
+            messages.error(request, str(e))
+        return redirect('wishlist:public_item_detail', pk=item.pk)
+
+    return render(request, 'wishlist/item_confirm_cancel.html', {'item': item})
+
+@login_required
+def friends_wishlists(request):
+    wishlists = Wishlist.objects.filter(
+        shares__shared_with=request.user
+    ).distinct()  # уникаємо дублікатів
+    return render(request, 'wishlist/friends_wishlists.html', {'wishlists': wishlists})
+
+
+@login_required
+def wishlist_edit_image(request, pk):
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        # Тільки поле image
+        form = WishlistImageForm(request.POST, request.FILES, instance=wishlist)
+        if form.is_valid():
+            wishlist = form.save(commit=False)
+            wishlist.save()
+            return redirect('wishlist:wishlist_detail', pk=wishlist.pk)
+    else:
+        # форма з вже існуючою картинкою
+        form = WishlistImageForm(instance=wishlist)
+
+    return render(request, 'wishlist/wishlist_edit_image.html', {'form': form, 'wishlist': wishlist})

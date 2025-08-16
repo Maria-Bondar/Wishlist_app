@@ -1,61 +1,61 @@
 {% extends "home.html" %}
+{% load static %}
 
 {% block content %}
-  <h2>Edit Profile</h2>
+<h2>Edit Profile</h2>
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
 
-    <div>
-      <label for="{{ form.profile_pic.id_for_label }}">Profile Photo:</label><br>
-        {{ form.profile_pic.errors }}
-        {{ form.profile_pic }}
-    </div>
-
-    <div>
-      <label for="{{ form.bio.id_for_label }}">About me:</label><br>
-      {{ form.bio.errors }}
-      {{ form.bio }}
-    </div>
-
-<label>Likes:</label>
-  <div id="likes-container">
-    {% for interest in likes %}
-      <div class="like-item">
-        <input type="text" name="likes" value="{{ interest.name }}">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% empty %}
-      <div class="like-item">
-        <input type="text" name="likes" value="">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% endfor %}
+  <div>
+    <label for="{{ form.profile_pic.id_for_label }}">Profile Photo:</label><br>
+    {{ form.profile_pic.errors }}
+    {{ form.profile_pic }}
   </div>
-  <button type="button" id="add-like">+ Add Like</button>
 
-  <label>Dislikes:</label>
-  <div id="dislikes-container">
-    {% for interest in dislikes %}
-      <div class="dislike-item">
-        <input type="text" name="dislikes" value="{{ interest.name }}">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% empty %}
-      <div class="dislike-item">
-        <input type="text" name="dislikes" value="">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% endfor %}
+  <div>
+    <label for="{{ form.bio.id_for_label }}">About me:</label><br>
+    {{ form.bio.errors }}
+    {{ form.bio }}
   </div>
-  <button type="button" id="add-dislike">+ Add Dislike</button>
 
-  <button type="submit">Save</button>
+  <!-- Likes -->
+  <div>
+    <div id="likes-container">
+      <h4>Choose what you like:</h4>
+      {% for interest in all_interests_likes %}
+      <label>
+        <input type="checkbox" name="likes_existing" value="{{ interest.id }}"
+              {% if interest in user_profile.likes.all %}checked{% endif %}>
+        {{ interest.name }}
+        </label><br>
+      {% endfor %} 
+    </div>
+    <button type="button" id="add-like">+ Add my own</button>
+  </div>
+
+  <!-- Dislikes -->
+  <div>
+    <div id="dislikes-container">
+      <h4>Choose what you don't like:</h4>
+      {% for interest in all_interests_dislikes %}
+        <label>
+          <input type="checkbox" name="dislikes_existing" value="{{ interest.id }}"
+                {% if interest in user_profile.dislikes.all %}checked{% endif %}>
+          {{ interest.name }}
+        </label><br>
+        {% endfor %}
+    </div>
+    <button type="button" id="add-dislike">+ Add my own</button>
+  </div>
+  <p>
+    <button type="submit">Save</button>
+  </p>
 </form>
 
 <script>
-  function makeItem(name = '', className = 'like-item', inputName = 'likes') {
+  function makeItem(name = '', className = 'like-item', inputName = 'likes_new') {
     const div = document.createElement('div');
     div.className = className;
     const input = document.createElement('input');
@@ -73,11 +73,11 @@
   }
 
   document.getElementById('add-like').addEventListener('click', () => {
-    document.getElementById('likes-container').appendChild(makeItem('', 'like-item', 'likes'));
+    document.getElementById('likes-container').appendChild(makeItem('', 'like-item', 'likes_new'));
   });
 
   document.getElementById('add-dislike').addEventListener('click', () => {
-    document.getElementById('dislikes-container').appendChild(makeItem('', 'dislike-item', 'dislikes'));
+    document.getElementById('dislikes-container').appendChild(makeItem('', 'dislike-item', 'dislikes_new'));
   });
 
   document.addEventListener('click', function(e) {
@@ -86,5 +86,4 @@
     }
   });
 </script>
-
 {% endblock %}

@@ -34,7 +34,15 @@ class PathAndRename:
 path_and_rename = PathAndRename("images/profile/")
 
 class Interest(models.Model):
+    LIKE = 'like'
+    DISLIKE = 'dislike'
+    TYPE_CHOICES = [
+        (LIKE, 'Like'),
+        (DISLIKE, 'Dislike'),
+    ]
+
     name = models.CharField(max_length=100, unique=True)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=LIKE)
 
     def __str__(self):
         return self.name
