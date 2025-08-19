@@ -286,6 +286,9 @@ def wishlist_edit_image(request, pk):
     if request.method == 'POST':
         form = WishlistImageForm(request.POST, request.FILES, instance=wishlist)
         if form.is_valid():
+            if request.POST.get('clear_image') == 'true':
+                wishlist.image.delete(save=False)
+                wishlist.image = None
             wishlist = form.save(commit=False)
             wishlist.save()
             return redirect('wishlist:wishlist_detail', pk=wishlist.pk)

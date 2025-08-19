@@ -11,6 +11,7 @@
             <label for="id_image">Upload new image:</label>
             <input type="file" name="image" id="id_image">
 
+            <input type="hidden" name="clear_image" id="clear-image-input" value="false">
             {% if wishlist.image %}
             <div class="current-image">
                 <span>Current:</span>
@@ -30,10 +31,12 @@
 <script>
 const clearBtn = document.querySelector('.clear-image-btn');
 const fileInput = document.getElementById('id_image');
+const clearInput = document.getElementById('clear-image-input');
 
 if (clearBtn) {
     clearBtn.addEventListener('click', () => {
         fileInput.value = ''; // очищає вибір файлу
+        clearInput.value = 'true'; // повідомляємо серверу, що треба видалити
         clearBtn.parentElement.style.display = 'none'; // ховаємо прев'ю
     });
 }
