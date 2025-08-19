@@ -40,20 +40,20 @@ Users can register, create profiles, add their own preferences (likes and dislik
   ![Registration screenshot](screenshots/register.png)
 
 - **All wishlists / main page**
-  ![Wishlist screenshot](screenshots/my_wishlists.png)
+  ![Wishlists screenshot](screenshots/my_wishlists.png)
 
 - **User profile**
   ![Profile screenshot](screenshots/profile.png)
 
 - **Wishlist example**
-  ![Registration screenshot](screenshots/wishlist.png)
+  ![One wishlist screenshot](screenshots/wishlist.png)
 
 - **Adding new item to wishlist**
-  ![Add item screenshot](screenshots/item.png)
+  ![Add item screenshot](screenshots/adding_item.png)
 
 - **Friends wishlists**
-  ![Add item screenshot](screenshots/friends_wishlists.png)
+  ![Friends wishlist screenshot](screenshots/friends_wishlists.png)
 
 - **Wishlist with reserved gifts**
-  ![Add item screenshot](screenshots/reserved_gifts.png)
+  ![Reserved items screenshot](screenshots/reserved_gifts.png)
 ---
