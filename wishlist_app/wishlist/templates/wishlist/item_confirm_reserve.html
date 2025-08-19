@@ -1,9 +1,8 @@
-{% extends 'home.html' %}
+{% comment %} {% extends 'home.html' %}
 {% block content %}
 
 <h2>Reservation gifts</h2>
 <p>Are you sure you want to reserve "{{ item.title }}"?</p>
-
 
 <form method="post">
     {% csrf_token %}
@@ -11,4 +10,4 @@
     <a href="{% url 'wishlist:public_item_detail' item.pk %}">Cancel</a>
 </form>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

@@ -1,13 +1,42 @@
 {% extends 'home.html' %}
 {% load static %}
 {% block content %}
-<h1>Edit Image for "{{ wishlist.name }}"</h1>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+<h1>Edit image for "{{ wishlist.name }}"</h1>
+<div class="create-wishlist-page edit-item-page">
+        <form method="post" enctype="multipart/form-data" class="edit-item-form">
+        {% csrf_token %}
 
-<a href="{% url 'wishlist:wishlist_list' %}">Back to wishlists</a>
+        <div class="form-group">
+            <label for="id_image">Upload new image:</label>
+            <input type="file" name="image" id="id_image">
+
+            {% if wishlist.image %}
+            <div class="current-image">
+                <span>Current:</span>
+                <img src="{{ wishlist.image.url }}" alt="Current image" class="image-preview">
+                <button type="button" class="clear-image-btn cancel-btn">Clear</button>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" class="btn-save">💾 Save</button>
+            <a href="{% url 'wishlist:wishlist_list' %}" class="btn-back">✖ Back</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const clearBtn = document.querySelector('.clear-image-btn');
+const fileInput = document.getElementById('id_image');
+
+if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+        fileInput.value = ''; // очищає вибір файлу
+        clearBtn.parentElement.style.display = 'none'; // ховаємо прев'ю
+    });
+}
+</script>
+
 {% endblock %}

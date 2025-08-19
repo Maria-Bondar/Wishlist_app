@@ -3,13 +3,24 @@
 {% block content %}
 
 <h1>
-    {{ wishlist.name }}
+    <span id="wishlist-name-display">{{ wishlist.name }}</span>
     {% if is_owner %}
+    <button id="edit-wishlist-btn" style="margin-left:8px; cursor:pointer;">✏️</button>
     <button id="wishlistDeleteBtn">Delete</button>
     {% endif %}
 </h1>
 
-<!-- Модалка видалення ВЕСЬОГО списку -->
+<form id="wishlist-name-form" action="{% url 'wishlist:wishlist_edit_name' wishlist.pk %}" method="post" style="display:none;">
+    {% csrf_token %}
+    <input type="text" name="name" id="wishlist-name-input" value="{{ wishlist.name }}" style="font-size:32px;">
+    <button type="submit" class="btn-save">Save</button>
+    <button type="button" class="btn-cancel" id="cancel-edit-btn">Cancel</button>
+</form>
+
+<p>
+  <a href="{% url 'wishlist:wishlist_list' %}" class="btn-back">Back to all wishlists</a>
+</p>
+<!-- Delete ENTIRE list modal -->
 <div id="deleteConfirm">
     <p>Are you sure you want to delete this wishlist?</p>
     <div class="buttons">
@@ -24,8 +35,7 @@
 {% if is_owner and wishlist.items.all|length %}
 <div class="share-section">
     <p>
-        <strong>Share your wishlist:</strong>
-        
+        <strong>Share your wishlist:</strong> 
         <!-- Copy Link -->
         <a href="#" class="copy-link" data-url="{{ request.scheme }}://{{ request.get_host }}{{ wishlist.get_absolute_url }}">
            🔗 Copy Link
@@ -54,11 +64,10 @@
     </p>
 </div>
 {% endif %}
-
-<!-- Список елементів -->
+<!-- List of elements -->
 <div class="wishlist-container">
     {% if is_owner %}
-    <!-- Картка "Add new item" -->
+    <!-- Card "Add new item" -->
     <div class="wishlist-item add-item">
         <a href="{% url 'wishlist:item_create' wishlist.pk %}" class="add-item-link">
             <div class="add-item-plus">＋</div>
@@ -70,7 +79,7 @@
     {% for item in wishlist.items.all %}
     <div class="wishlist-item">
       {% if is_owner %}
-        <!-- Кнопка видалення елемента -->
+        <!-- Delete item button -->
         <button type="button" class="delete-item-btn" data-url="{% url 'wishlist:item_delete' item.pk %}" aria-label="Delete item">×</button>
       {% endif %}
         
@@ -90,7 +99,7 @@
     {% endfor %}
 </div>
 
-<!-- Модалка видалення ОКРЕМОГО елемента -->
+<!-- Modal for deleting a SINGLE element -->
 <div id="itemDeleteConfirm" class="item-delete-popup">
     <p id="deleteMessage">Are you sure you want to delete this gift?</p>
     <form id="itemDeleteForm" method="post" style="display:inline;">
@@ -100,12 +109,31 @@
     <button id="cancelItemDelete" class="cancel-btn" type="button">Cancel</button>
 </div>
 
-<!-- Напівпрозорий фон для обох модалок -->
+<!-- Semi-transparent background for both modals -->
 <div id="overlay" style="display:none;"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // ===== Копіювання лінка =====
+
+    const editBtn = document.getElementById('edit-wishlist-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const display = document.getElementById('wishlist-name-display');
+    const form = document.getElementById('wishlist-name-form');
+
+    if(editBtn) {
+        editBtn.addEventListener('click', () => {
+        display.style.display = 'none'; // тепер display існує
+        form.style.display = 'block';
+    });
+    }
+
+    if(cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            form.style.display = 'none';
+            display.style.display = 'block';
+        });
+    }
+    // ===== Copy link =====
     document.querySelectorAll(".copy-link").forEach(link => {
         link.addEventListener("click", function (e) {
             e.preventDefault();
@@ -123,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ===== Елементи модалок =====
+    // ===== Elements of modals =====
     const overlay            = document.getElementById("overlay");
     const listConfirm        = document.getElementById("deleteConfirm");
     const cancelDelete       = document.getElementById("cancelDelete");
@@ -134,22 +162,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteMessage      = document.getElementById("deleteMessage");
     const cancelItemDelete   = document.getElementById("cancelItemDelete");
 
-    // Функції для роботи з модалками
+    // Functions for working with modals
     function openModal(modalElement) {
         if (!modalElement || !overlay) return;
         modalElement.style.display = "block";
         overlay.style.display = "block";
-        document.body.style.overflow = "hidden"; // Блокуємо скрол
+        document.body.style.overflow = "hidden"; 
     }
     
     function closeAllModals() {
         if (listConfirm) listConfirm.style.display = "none";
         if (itemConfirm) itemConfirm.style.display = "none";
         if (overlay) overlay.style.display = "none";
-        document.body.style.overflow = ""; // Відновлюємо скрол
+        document.body.style.overflow = "";
     }
 
-    // ===== Відкрити модалку видалення списку =====
+    // ===== Open the delete list modal =====
     if (wishlistDeleteBtn && listConfirm && overlay) {
         wishlistDeleteBtn.addEventListener("click", function() {
             openModal(listConfirm);
@@ -160,11 +188,11 @@ document.addEventListener("DOMContentLoaded", function () {
         cancelDelete.addEventListener("click", closeAllModals);
     }
 
-    // ===== Відкрити модалку видалення елемента =====
+    // ===== Open the delete item modal =====
     function attachDeleteButtons() {
         document.querySelectorAll(".delete-item-btn").forEach(btn => {
             btn.addEventListener("click", function() {
-                console.log("Delete button clicked"); // Для відлагодження
+
                 
                 if (!itemConfirm || !itemDeleteForm) {
                     console.log("Modal elements not found");
@@ -176,13 +204,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const titleElement = wishlistItem?.querySelector(".wishlist-title");
                 const giftTitle = titleElement?.textContent?.trim() || "this gift";
 
-                console.log("Delete URL:", url); // Для відлагодження
-                console.log("Gift title:", giftTitle); // Для відлагодження
-
-                // Встановлюємо URL для форми
+                // Setting the URL for the form
                 itemDeleteForm.setAttribute("action", url);
                 
-                // Оновлюємо текст повідомлення
+                // Updating the message text
                 if (deleteMessage) {
                     deleteMessage.textContent = `Are you sure you want to delete "${giftTitle}"?`;
                 }
@@ -192,10 +217,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Викликаємо функцію прив'язки кнопок
+    // Calling the button binding function
     attachDeleteButtons();
 
-    // ===== Закриття модалок =====
+    // ===== Closing modals =====
     if (cancelItemDelete) {
         cancelItemDelete.addEventListener("click", closeAllModals);
     }
@@ -204,14 +229,14 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.addEventListener("click", closeAllModals);
     }
 
-    // Закриття модалок по Escape
+    // Closing modals by Escape
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") {
             closeAllModals();
         }
     });
 
-    // Запобігання закриттю при кліку на саму модалку
+    // Preventing closing when clicking on the modal itself
     if (listConfirm) {
         listConfirm.addEventListener("click", function(e) {
             e.stopPropagation();

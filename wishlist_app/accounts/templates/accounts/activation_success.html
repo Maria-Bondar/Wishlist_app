@@ -1,0 +1,8 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Your account has been activated!</h2>
+<p>You can now log in.</p>
+<a href="{% url 'accounts:login' %}">Login</a>
+{% endblock %}

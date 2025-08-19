@@ -2,48 +2,88 @@
 {% load static %}
 
 {% block content %}
-  <h2>{{ user.username }}'s Profile</h2>
 
-  {% if user.userprofile.profile_pic %}
-    <div>
-      <img src="{{ user.userprofile.profile_pic.url }}" alt="Profile photo" style="max-width: 200px; height: auto;">
+{% if not user.is_authenticated or user != profile.user %}
+    <p>
+        <button class="btn-back" onclick="window.history.back();">← Back</button>
+    </p>
+{% endif %}
+  <div class="profile-container">
+      <h1 class="profile-title">{{ profile.user.username }}'s Profile</h1>
+
+      <div class="profile-photo">
+          {% if profile.profile_pic %}
+              <img src="{{ profile.profile_pic.url }}" alt="Profile photo" class="profile-img">
+          {% else %}
+              <img src="{% static 'images/default-profile.png' %}" alt="Default profile photo" class="profile-img">
+              <p><em>No profile photo uploaded.</em></p>
+          {% endif %}
+      </div>
+
+      {% if profile.user.date_of_birth %}
+          <p><strong>Date of birth:</strong> {{ profile.user.date_of_birth|date:"F j, Y" }}</p>
+      {% endif %}
+
+      <div class="profile-info">
+          <p><strong>About me:</strong> {{ profile.bio|default:"No bio yet." }}</p>
+
+          <div class="profile-section">
+              <h3>👍 Likes</h3>
+              {% if profile.likes.exists %}
+                  <ul class="profile-list">
+                      {% for interest in profile.likes.all %}
+                          <li>{{ interest.name }}</li>
+                      {% endfor %}
+                  </ul>
+              {% else %}
+                  <em>No likes specified.</em>
+              {% endif %}
+          </div>
+
+          <div class="profile-section">
+              <h3>👎 Dislikes</h3>
+              {% if profile.dislikes.exists %}
+                  <ul class="profile-list">
+                      {% for interest in profile.dislikes.all %}
+                          <li>{{ interest.name }}</li>
+                      {% endfor %}
+                  </ul>
+              {% else %}
+                  <em>No dislikes specified.</em>
+              {% endif %}
+          </div>
+      </div>
+
+      <h3>🌐 Links on social media</h3>
+      <div>
+          {% if profile.facebook %}
+              <a href="https://facebook.com/{{ profile.facebook }}" target="_blank" style="font-size:32px; color:#1877F2; margin-right:10px; text-decoration: none;">
+                  <i class="fab fa-facebook"></i>
+              </a>
+          {% endif %}
+          {% if profile.twitter %}
+              <a href="https://twitter.com/{{ profile.twitter }}" target="_blank" style="font-size:32px; color:#1DA1F2; margin-right:10px; text-decoration: none;">
+                  <i class="fab fa-twitter"></i>
+              </a>
+          {% endif %}
+          {% if profile.instagram %}
+              <a href="https://instagram.com/{{ profile.instagram }}" target="_blank" style="font-size:32px; color:#C13584; margin-right:10px; text-decoration: none;">
+                  <i class="fab fa-instagram"></i>
+              </a>
+          {% endif %}
+      </div>
+
+      {% if not profile.facebook and not profile.twitter and not profile.instagram %}
+          <em>No social links added.</em>
+      {% endif %}
     </div>
-  {% else %}
-    <p><em>No profile photo uploaded.</em></p>
-  {% endif %}
-
-  {% if user.userprofile %}
-    <p><strong>About me:</strong> {{ user.userprofile.bio|default:"No bio yet." }}</p>
-
-  <p><strong>Likes:</strong></p>
-    {% if user.userprofile.likes.exists %}
-      <ul>
-        {% for interest in user.userprofile.likes.all %}
-          <li>{{ interest.name }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <em>No likes specified.</em>
-    {% endif %}
-
-    <p><strong>Dislikes:</strong></p>
-    {% if user.userprofile.dislikes.exists %}
-      <ul>
-        {% for interest in user.userprofile.dislikes.all %}
-          <li>{{ interest.name }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <em>No dislikes specified.</em>
-    {% endif %}
-
-
-    <p>
-      <a href="{% url 'accounts:edit_profile' pk=user.userprofile.pk  %}">Edit profile</a>
-    </p>
-  {% else %}
-    <p>
-      <a href="{% url 'accounts:create_profile' pk=user.userprofile.pk  %}" class="btn btn-primary">Create profile</a>
-    </p>
-  {% endif %}
+      <div class="profile-actions">
+        {% if can_edit %}
+          {% if user.userprofile %}
+            <a href="{% url 'accounts:edit_profile' profile.pk %}" class="btn-back">✎ Edit profile</a>
+          {% else %}
+            <a href="{% url 'accounts:create_profile' profile.pk %}" class="btn-back">＋ Create profile</a>
+          {% endif %}
+        {% endif %}
+      </div>
 {% endblock %}

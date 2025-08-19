@@ -1,183 +1,135 @@
 {% extends "home.html" %}
-{% comment %} 
-
-{% block content %}
-  <h2>Create profile</h2>
-
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-
-    <div>
-      <label for="{{ form.bio.id_for_label }}">Bio:</label><br>
-      {{ form.bio.errors }}
-      {{ form.bio }}
-    </div>
-
-    <label>Likes:</label>
-  <div id="likes-container">
-    {% for interest in likes %}
-      <div class="like-item">
-        <input type="text" name="likes" value="{{ interest.name }}">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% empty %}
-      <div class="like-item">
-        <input type="text" name="likes" value="">
-        <button type="button" class="remove">×</button>
-      </div>
-    {% endfor %}
-  </div>
-  <button type="button" id="add-like">+ Add Like</button>
-
-  <div>
-    <label>Dislikes:</label>
-    <div id="dislikes-container">
-      {% for interest in dislikes %}
-        <div class="dislike-item">
-          <input type="text" name="dislikes" value="{{ interest.name }}">
-          <button type="button" class="remove">×</button>
-        </div>
-      {% empty %}
-        <div class="dislike-item">
-          <input type="text" name="dislikes" value="">
-          <button type="button" class="remove">×</button>
-        </div>
-      {% endfor %}
-    </div>
-    <button type="button" id="add-dislike">+ Add Dislike</button>
-
-    <button type="submit">Save</button>
-    </div>
-
-    <div>
-      <label for="{{ form.profile_pic.id_for_label }}">Profile pic:</label><br>
-      {{ form.profile_pic.errors }}
-      {{ form.profile_pic }}
-    </div>
-
-    <div>
-      <label for="{{ form.facebook.id_for_label }}">Facebook:</label><br>
-      {{ form.facebook.errors }}
-      {{ form.facebook }}
-    </div>
-
-    <div>
-      <label for="{{ form.twitter.id_for_label }}">Twitter:</label><br>
-      {{ form.twitter.errors }}
-      {{ form.twitter }}
-    </div>
-
-    <div>
-      <label for="{{ form.instagram.id_for_label }}">Instagram:</label><br>
-      {{ form.instagram.errors }}
-      {{ form.instagram }}
-    </div>
-
-    <button type="submit">Submit</button>
-  </form>
-{% endblock %} {% endcomment %}
+{% load static %}
 
 {% block content %}
 <h2>Create profile</h2>
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" class="profile-form">
   {% csrf_token %}
   {{ form.non_field_errors }}
 
-  <div>
-    <label for="{{ form.profile_pic.id_for_label }}">Profile pic:</label><br>
-    {{ form.profile_pic.errors }}
-    {{ form.profile_pic }}
+  <!-- Profile Photo -->
+  <div class="profile-photo">
+      {% if form.instance.profile_pic %}
+          <img id="profile-preview" src="{{ form.instance.profile_pic.url }}" alt="Profile photo" class="profile-img">
+      {% else %}
+          <img id="profile-preview" src="{% static 'images/default-profile.png' %}" alt="Default profile photo" class="profile-img">
+          <p><em>No profile photo uploaded.</em></p>
+      {% endif %}
   </div>
+  {{ form.profile_pic.errors }}
+  <input type="file" id="profile-pic-input" name="profile_pic" accept="image/*" style="display:none;">
+  <button type="button" id="change-photo-btn" class="btn-secondary">Change Photo</button>
 
-  <div>
-    <label for="{{ form.bio.id_for_label }}">Bio:</label><br>
-    {{ form.bio.errors }}
-    {{ form.bio }}
+  <!-- Bio -->
+  <div class="form-group">
+    <label for="bio">About me:</label>
+    <textarea name="bio" id="bio" rows="3">{{ form.instance.bio }}</textarea>
   </div>
 
   <!-- Likes -->
-  <div>
+  <div class="profile-section">
     <h4>Choose what you like:</h4>
-    {% for interest in all_interests_likes %}
-      <label>
-        <input type="checkbox" name="likes_existing" value="{{ interest.id }}">
-        {{ interest.name }}
-      </label><br>
-    {% endfor %}
-
+    <div id="likes-container" class="checkbox-group">
+      {% for interest in all_interests_likes %}
+        <label class="checkbox-label">
+          <input type="checkbox" name="likes_existing" value="{{ interest.id }}">
+          {{ interest.name }}
+        </label>
+      {% endfor %}
+    </div>
     <h4>Add new likes:</h4>
     <div id="likes-new-container"></div>
-    <button type="button" id="add-like">+ Add my own</button>
+    <button type="button" id="add-like" class="btn-secondary">+ Add my own</button>
   </div>
 
   <!-- Dislikes -->
-  <div>
+  <div class="profile-section">
     <h4>Choose what you don't like:</h4>
-    {% for interest in all_interests_dislikes %}
-      <label>
-        <input type="checkbox" name="dislikes_existing" value="{{ interest.id }}">
-        {{ interest.name }}
-      </label><br>
-    {% endfor %}
-
+    <div id="dislikes-container" class="checkbox-group">
+      {% for interest in all_interests_dislikes %}
+        <label class="checkbox-label">
+          <input type="checkbox" name="dislikes_existing" value="{{ interest.id }}">
+          {{ interest.name }}
+        </label>
+      {% endfor %}
+    </div>
     <h4>Add new dislikes:</h4>
     <div id="dislikes-new-container"></div>
-    <button type="button" id="add-dislike">+ Add my own</button>
+    <button type="button" id="add-dislike" class="btn-secondary">+ Add my own</button>
   </div>
 
-  <div>
-    <label for="{{ form.facebook.id_for_label }}">Facebook:</label><br>
+  <!-- Social links -->
+  <div class="form-group">
+    <label for="{{ form.facebook.id_for_label }}">Facebook:</label>
     {{ form.facebook.errors }}
     {{ form.facebook }}
   </div>
 
-  <div>
-    <label for="{{ form.twitter.id_for_label }}">Twitter:</label><br>
+  <div class="form-group">
+    <label for="{{ form.twitter.id_for_label }}">Twitter:</label>
     {{ form.twitter.errors }}
     {{ form.twitter }}
   </div>
 
-  <div>
-    <label for="{{ form.instagram.id_for_label }}">Instagram:</label><br>
+  <div class="form-group">
+    <label for="{{ form.instagram.id_for_label }}">Instagram:</label>
     {{ form.instagram.errors }}
     {{ form.instagram }}
   </div>
 
-  <button type="submit">Submit</button>
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Submit</button>
+  </div>
 </form>
 
 <script>
-function makeItem(inputName, placeholder) {
-  const div = document.createElement('div');
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.name = inputName;
-  input.placeholder = placeholder;
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'remove';
-  btn.innerText = '×';
-  btn.addEventListener('click', () => div.remove());
-  div.appendChild(input);
-  div.appendChild(btn);
-  return div;
-}
+  // button for selecting a photo
+  const fileInput = document.getElementById("profile-pic-input");
+  const changePhotoBtn = document.getElementById("change-photo-btn");
+  const previewImg = document.getElementById("profile-preview");
 
-document.getElementById('add-like').addEventListener('click', () => {
-  document.getElementById('likes-new-container').appendChild(makeItem('likes_new', 'Add new like'));
-});
-
-document.getElementById('add-dislike').addEventListener('click', () => {
-  document.getElementById('dislikes-new-container').appendChild(makeItem('dislikes_new', 'Add new dislike'));
-});
-
-document.addEventListener('click', function(e) {
-  if (e.target.matches('.remove')) {
-    e.target.closest('div').remove();
+  if (changePhotoBtn && fileInput) {
+    changePhotoBtn.addEventListener("click", () => fileInput.click());
   }
-});
-</script>
 
+  if (fileInput) {
+    fileInput.addEventListener("change", function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.setAttribute("src", e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // dynamic likes/dislikes fields
+  function makeItem(inputName, placeholder) {
+    const div = document.createElement('div');
+    div.className = 'custom-input';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = inputName;
+    input.placeholder = placeholder;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'remove-btn';
+    btn.innerText = '×';
+    btn.addEventListener('click', () => div.remove());
+    div.appendChild(input);
+    div.appendChild(btn);
+    return div;
+  }
+
+  document.getElementById('add-like').addEventListener('click', () => {
+    document.getElementById('likes-new-container').appendChild(makeItem('likes_new', 'Add new like'));
+  });
+
+  document.getElementById('add-dislike').addEventListener('click', () => {
+    document.getElementById('dislikes-new-container').appendChild(makeItem('dislikes_new', 'Add new dislike'));
+  });
+</script>
 {% endblock %}

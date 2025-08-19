@@ -3,18 +3,72 @@
 
 {% block content %}
 
+<a href="{% url 'wishlist:wishlist_detail' item.wishlist.pk %}" class="btn-back">Back to wishlist</a>
+<br>
+
 <h1>{{ item.title }}</h1>
 
 <img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}" 
-     alt="{{ item.title }}" style="width:300px;height:300px;object-fit:cover;">
+     alt="{{ item.title }}" style="width:300px;height:300px;object-fit:cover; border-radius:8px; margin-bottom:20px;">
 
 {% if item.price %}<p>Price: {{ item.price }}</p>{% endif %}
 {% if item.description %}<p>Description: {{ item.description }}</p>{% endif %}
 {% if item.url %}<p>Link: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>{% endif %}
 
-<p>Reserved: {% if item.is_reserved %}Yes{% else %}No{% endif %}</p>
+<div class="item-buttons">
+    <a href="{% url 'wishlist:item_edit' item.pk %}" class="btn-edit">Edit</a>
+    <button id="itemDeleteBtn" class="btn-delete">Delete</button>
+</div>
 
-<a href="{% url 'wishlist:item_edit' item.pk %}">Edit</a> |
-<a href="{% url 'wishlist:item_delete' item.pk %}">Delete</a>
+<!-- Overlay -->
+<div id="overlay" class="overlay" style="display:none;"></div>
+
+<!-- Модальне вікно для видалення item -->
+<div id="itemDeleteConfirm" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Confirm Deletion</h2>
+        <p id="deleteMessage">Are you sure you want to delete <strong>{{ item.title }}</strong>?</p>
+        <form id="itemDeleteForm" method="post" action="{% url 'wishlist:item_delete' item.pk %}">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="submit" class="btn-delete">Yes, Delete</button>
+                <button type="button" id="cancelItemDelete" class="btn-cancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ===== Const for deleting item =====
+    const overlay          = document.getElementById("overlay");
+    const itemConfirm      = document.getElementById("itemDeleteConfirm");
+    const itemDeleteBtn    = document.getElementById("itemDeleteBtn");
+    const cancelItemDelete = document.getElementById("cancelItemDelete");
+
+    // Functions for working with modals
+    function openModal(modalElement) {
+        if (!modalElement || !overlay) return;
+        modalElement.style.display = "block";
+        overlay.style.display = "block";
+        document.body.style.overflow = "hidden"; // блокуємо скрол
+    }
+
+    function closeAllModals() {
+        if (itemConfirm) itemConfirm.style.display = "none";
+        if (overlay) overlay.style.display = "none";
+        document.body.style.overflow = ""; // повертаємо скрол
+    }
+
+    // Open the delete item modal
+    if (itemDeleteBtn && itemConfirm && overlay) {
+        itemDeleteBtn.addEventListener("click", function() {
+            openModal(itemConfirm);
+        });
+    }
+
+    if (cancelItemDelete) {
+        cancelItemDelete.addEventListener("click", closeAllModals);
+    }
+</script>
 
 {% endblock %}

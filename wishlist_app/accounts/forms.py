@@ -4,7 +4,10 @@ from .models import CustomUser
 from .models import UserProfile, Interest
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'placeholder': 'Enter your email'})
+    )
     date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
@@ -20,5 +23,14 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio', 'profile_pic', 'facebook', 'twitter', 'instagram']
+        
+class EditUserForm(forms.ModelForm):
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    class Meta:
+        model = CustomUser
+        fields = ['date_of_birth']
 
         

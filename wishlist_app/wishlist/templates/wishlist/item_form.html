@@ -2,13 +2,29 @@
 {% block content %}
 
 <h1>Add Item to "{{ wishlist.name }}"</h1>
+<div class="create-wishlist-page edit-item-page">
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+    <form method="post" enctype="multipart/form-data" class="edit-item-form">
+        {% csrf_token %}
 
-<a href="{% url 'wishlist:wishlist_detail' wishlist.pk %}">Back to wishlist</a>
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small>{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="form-buttons">
+            <button type="submit" class="btn-save">💾 Save</button>
+            <a href="{% url 'wishlist:wishlist_detail' wishlist.pk %}" class="btn-back">✖ Back</a>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

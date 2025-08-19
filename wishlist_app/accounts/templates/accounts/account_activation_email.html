@@ -1,0 +1,13 @@
+{% block content %}
+
+<p>Hi {{ user.username }},</p>
+
+<p>Please click the link below to confirm your registration:</p>
+
+<p>
+    <a href="http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}">
+        Activate Account
+    </a>
+</p>
+
+{% endblock %}

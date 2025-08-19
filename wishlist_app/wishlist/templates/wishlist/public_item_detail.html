@@ -2,60 +2,76 @@
 {% load static %}
 {% block content %}
 
-<h1>{{ item.title }}</h1>
+<h1>{{ wishlist.name }}</h1>
 
-{% if item.is_reserved %}
-    {% if item.reserved_by == request.user %}
-        <p>You have reserved this gift</p>
-        <form action="{% url 'wishlist:cancel_reservation' item.pk %}" method="post">
-            {% csrf_token %}
-            <button type="submit" style="background-color:red; color:white; padding:8px 12px; border:none; border-radius:5px;">
-                ❌ Cancel Reservation
-            </button>
-        </form>
+<p style="margin-top:30px;">
+    <a href="{{ item.wishlist.get_absolute_url }}" class="btn-back" style="padding:14px 24px; font-size:16px;">← Back to Wishlist</a>
+
+    {% if item.is_reserved %}
+        {% if item.reserved_by == request.user %}
+            <form action="{% url 'wishlist:cancel_reservation' item.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="btn-cancel" 
+                        style="padding:14px 24px; font-size:16px; background:#B22222; color:white; border:none; cursor:pointer;">
+                    ❌ Cancel reservation
+                </button>
+            </form>
+        {% endif %}
     {% else %}
-        <p>This gift is reserved</p>
+        {% if not is_owner %}
+            <form action="{% url 'wishlist:reserve_item' item.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-save" style="padding:14px 24px; font-size:16px;">🎁 Reserve</button>
+            </form>
+        {% endif %}
     {% endif %}
-{% else %}
-    {% if not is_owner %}
-        <form action="{% url 'wishlist:reserve_item' item.pk %}" method="post">
-            {% csrf_token %}
-            <button type="submit" style="background-color:green; color:white; padding:8px 12px; border:none; border-radius:5px;">
-                🎁 Reserve
-            </button>
-        </form>
+</p>
+
+<div class="edit-item-page create-wishlist-page" style="padding:40px; position:relative;">
+    <h1 style="margin-bottom:30px; font-size:32px; text-align: center;">{{ item.title }}</h1>
+
+    {% if item.is_reserved %}
+    <div class="reserved-overlay"></div>
+        {% if item.reserved_by == request.user %}
+            <p class="reserved-label" style="margin-bottom:25px;">You have reserved this gift</p>
+        {% else %}
+            <p class="reserved-label" style="margin-bottom:35px;">This gift is reserved</p>
+        {% endif %}
     {% endif %}
-{% endif %}
 
-<img src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'images/default-gift.png' %}{% endif %}" 
-     alt="{{ item.title }}" 
-     style="width:300px; height:300px; object-fit:cover;">
+    <div class="current-image" style="margin:40px 0; justify-content:center; position:relative;">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" 
+            alt="{{ item.title }}" 
+            class="wishlist-img {% if item.is_reserved and item.reserved_by != request.user %}reserved{% endif %}"
+            style="width:100% !important; max-width:500px !important; height:auto !important; border-radius:8px;">
+    {% else %}
+        <img src="{% static 'images/default-gift.png' %}" 
+            alt="{{ item.title }}" 
+            class="wishlist-img {% if item.is_reserved and item.reserved_by != request.user %}reserved{% endif %}"
+            style="width:100% !important; max-width:500px !important; height:auto !important; border-radius:8px;">
+    {% endif %}
+    </div>
 
-{% if item.price %}
-<p>Price: {{ item.price }} UAH</p>
-{% endif %}
+    {% if item.price %}
+        <p style="margin-bottom:25px; font-size:18px;"><strong>Price:</strong> {{ item.price }} UAH</p>
+    {% endif %}
 
-{% if item.description %}
-<p>Description: {{ item.description }}</p>
-{% endif %}
+    {% if item.description %}
+        <p style="margin-bottom:25px; font-size:18px;"><strong>Description:</strong> {{ item.description }}</p>
+    {% endif %}
+</div>
 
 {% if item.url %}
-<p>🔗 View product: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>
-{% endif %}
+        <p style="margin-bottom:40px; font-size:18px;">🔗 View product: <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>
+    {% endif %}
 
-<!-- Edit/Delete buttons only for the owner -->
-{% if is_owner %}
-    <p>
-        <a href="{% url 'wishlist:item_edit' item.pk %}">Edit</a> | 
-        <a href="{% url 'wishlist:item_delete' item.pk %}">Delete</a>
-    </p>
-{% endif %}
-
-<!-- Посилання повернутися до вішліста -->
-<p>
-    <a href="{{ item.wishlist.get_absolute_url }}" style="text-decoration:underline;">
-        ← Back to Wishlist
-    </a>
-</p>
+    {% if is_owner %}
+        <div class="form-buttons" style="margin-bottom:40px; gap:20px;">
+            <a href="{% url 'wishlist:item_edit' item.pk %}" class="btn-save" style="padding:14px 24px; font-size:16px;">Edit</a>
+            <a href="{% url 'wishlist:item_delete' item.pk %}" class="cancel-btn" style="padding:14px 24px; font-size:16px;">Delete</a>
+        </div>
+    {% endif %}
 
 {% endblock %}

@@ -1,0 +1,8 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Invalid or expired link.</h2>
+<p>Please try registering again.</p>
+<a href="{% url 'accounts:register' %}">Register</a>
+{% endblock %}

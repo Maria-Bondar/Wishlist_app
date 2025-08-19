@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Wishlist{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
     <header>
@@ -15,32 +19,30 @@
     <aside class="sidebar">
         <div class="sidebar-header">
         <a href="{% url 'wishlist:wishlist_list' %}">
-            <h2>Gifty</h2>
+            <h2>Gifty🎁</h2>
         </a>
     </div>
         {% if user.is_authenticated %}
             <nav>
                 <ul>
-                    <li><a href="{% url 'wishlist:wishlist_list' %}">My Wishlists</a></li>
+                    <li><a href="{% url 'wishlist:wishlist_list' %}">My Wishlists 💌</a></li>
                     <li><a href="{% url 'wishlist:friends_wishlists' %}">Friends' Wishlists</a></li>
 
                     {% if user.userprofile %}
-                        <li><a href="{% url 'accounts:profile' pk=user.userprofile.pk %}">Profile 📚</a></li>
+                        <li><a href="{% url 'accounts:profile' pk=user.userprofile.pk %}">Profile 🪄</a></li>
                     {% else %}
-                        <li><a href="{% url 'accounts:create_profile' %}">Create Profile</a></li>
+                        <li><a href="{% url 'accounts:create_profile' %}">Create Profile 🪄</a></li>
                     {% endif %}
 
-                    <li><a href="{% url 'accounts:logout' %}">Log out</a></li>
+                    <li><a href="{% url 'accounts:logout' %}">Log out 📴</a></li>
                 </ul>
             </nav>
         {% else %}
-            {% if request.resolver_match.url_name != 'login' %}
                 <nav>
                     <ul>
-                        <li><a href="{% url 'accounts:login' %}">Log in</a></li>
+                        <li><a href="{% url 'accounts:login' %}">Log in 🔒</a></li>
                     </ul>
                 </nav>
-            {% endif %}
         {% endif %}
     </aside>
 

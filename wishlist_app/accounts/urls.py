@@ -6,6 +6,7 @@ app_name = 'accounts'
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
     path('logout/', views.logout_view, name='logout'),
     path('profile/<int:pk>/', views.profile_view, name='profile'),
     path('create_profile/', views.create_profile, name='create_profile'),

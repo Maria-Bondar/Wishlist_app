@@ -10,6 +10,7 @@ urlpatterns = [
     path('<int:pk>/', views.wishlist_detail, name='wishlist_detail'),
     path('create/', views.wishlist_create, name='wishlist_create'),
     path('wishlist/<int:pk>/delete/', views.wishlist_delete, name='wishlist_delete'),
+    path('<int:pk>/edit_name/', views.wishlist_edit_name, name='wishlist_edit_name'),
     path('<int:wishlist_pk>/item/create/', views.item_create, name='item_create'),
     path('item/<int:pk>/', views.item_detail, name='item_detail'),
     path('item/<int:pk>/edit/', views.item_edit, name='item_edit'),

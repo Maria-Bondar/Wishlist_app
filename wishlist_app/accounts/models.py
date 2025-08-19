@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
 import os
@@ -11,6 +11,7 @@ from django.utils.deconstruct import deconstructible
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=False, blank=True, null=True)
     email = models.EmailField(unique=True)
+    date_of_birth = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'        
     REQUIRED_FIELDS = []           
@@ -26,9 +27,7 @@ class PathAndRename:
 
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
-        # Створюємо унікальне ім'я з uuid
         filename = '{}.{}'.format(uuid.uuid4().hex, ext)
-        # Повертаємо шлях
         return os.path.join(self.path, filename)
 
 path_and_rename = PathAndRename("images/profile/")

@@ -4,11 +4,49 @@
 
 <h1>{{ wishlist.name }}</h1>
 
+<p>
+  <a href="{% url 'wishlist:friends_wishlists' %}" class="btn-back">Back to all friends wishlists</a>
+</p>
+
 {% if user.is_authenticated and user == wishlist.user %}
     <a href="{% url 'wishlist:item_create' wishlist.pk %}">Add new item</a>
 {% endif %}
 
-<link rel="stylesheet" href="{% static 'css/wishlist.css' %}">
+<!-- Wishlist owner profile block -->
+<div class="friend-profile">
+    <h3>About {{ wishlist.user.username }}</h3>
+    
+    {% if wishlist.user.userprofile.profile_pic %}
+        <img src="{{ wishlist.user.userprofile.profile_pic.url }}" alt="Profile photo" class="profile-img-small">
+    {% else %}
+        <img src="{% static 'images/default-profile.png' %}" alt="Default profile photo" class="profile-img-small">
+    {% endif %}
+    
+    {% if wishlist.user.date_of_birth %}
+        <p><strong>Date of birth:</strong> {{ wishlist.user.date_of_birth|date:"F j, Y" }}</p>
+    {% endif %}
+    
+    {% if wishlist.user.userprofile.likes.exists %}
+        <p><strong>Likes:</strong> 
+            {% for interest in wishlist.user.userprofile.likes.all %}
+                {{ interest.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        <p><strong>Disikes:</strong> 
+            {% for interest in wishlist.user.userprofile.dislikes.all %}
+                {{ interest.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+    
+    <p>
+        <a href="{% url 'accounts:profile' wishlist.user.userprofile.pk %}">View full profile</a>
+    </p>
+</div>
+
+{% if user.is_authenticated and user == wishlist.user %}
+    <a href="{% url 'wishlist:item_create' wishlist.pk %}">Add new item</a>
+{% endif %}
 
 <div class="wishlist-container">
   {% for item in wishlist.items.all %}
@@ -38,7 +76,7 @@
 
       {% if item.price %}
         <p class="wishlist-price">
-          {{ item.price }} грн
+          {{ item.price }} UAH
         </p>
       {% endif %}
     </div>

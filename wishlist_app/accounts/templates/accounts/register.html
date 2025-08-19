@@ -1,20 +1,75 @@
 {% extends "home.html" %}
-
+{% load static %}
 {% block title %}
     Register a new user
 {% endblock %}
 
 {% block content %}
-    <h2>Registration new user</h2>
+<div class="form-container">
+    <h2 class="form-title">Register New User</h2>
 
-    <form class="form-with-validation" action="/accounts/register/" method="post">
+    <form class="form-with-validation" action="{% url 'accounts:register' %}" method="post">
         {% csrf_token %}
-        {{ form.as_p}}
-        <button type="submit">Submit</button>
-    </form>
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username:</label>
+            {{ form.username }}
+        </div>
 
-    <p>Already have an account?</p>
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email:</label>
+            {{ form.email }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth:</label>
+            {{ form.date_of_birth }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Password:</label>
+            {{ form.password1 }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+            {{ form.password2 }}
+        </div>
+
+        {% if form.errors %}
+            <div class="alert">
+                <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <p>
+            <button type="submit" class="btn-save">Submit</button>
+        </p>
+    </form>
+    <hr>
+
+    <p class="form-note">Already have an account?</p>
     <a href="{% url 'accounts:login' %}">
-        <button type="button" style="background-color:rgb(234, 128, 101)" class="butt">Log in</button>
+        <button type="button" class="btn-back">Login</button>
     </a>
+</div>
+
+<script>
+    flatpickr("input[name='date_of_birth']", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        altInput: true,
+        altFormat: "F j, Y"
+    });
+</script>
+
 {% endblock %}

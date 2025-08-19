@@ -1,12 +1,77 @@
 {% extends 'home.html' %}
 {% block content %}
 <h1>Edit Item: {{ item.title }}</h1>
+<a href="{% url 'wishlist:item_detail' item.pk %}" class="btn-back">Back</a>
+<br>
+<div class="edit-item-page">
+    <form method="post" enctype="multipart/form-data" class="edit-item-form">
+        {% csrf_token %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save changes</button>
-</form>
+        {{ form.non_field_errors }}
 
-<a href="{% url 'wishlist:item_detail' item.pk %}">Cancel</a>
+        <div class="form-group">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+
+        <div class="form-group">
+            {{ form.price.label_tag }}
+            {{ form.price }}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+
+        <div class="form-group">
+            {{ form.url.label_tag }}
+            {{ form.url }}
+        </div>
+
+        <div class="form-group">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" class="btn-save">💾 Save changes</button>
+            <button type="button" class="btn-back" id="cancelBtn">✖ Cancel</button>
+        </div>
+    </form>
+</div>
+
+<!-- Cancellation confirmation form -->
+<div id="overlay" style="display:none;"></div>
+<div id="cancelConfirm" class="modal" style="display:none;">
+    <p>Are you sure you want to cancel editing? Unsaved changes will be lost.</p>
+    <div class="buttons">
+        <a href="{% url 'wishlist:item_detail' item.pk %}" class="confirm-btn">Yes, cancel</a>
+        <button id="cancelModal" class="cancel-btn" type="button">No, stay</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('cancelBtn');
+    const cancelModal = document.getElementById('cancelConfirm');
+    const overlay = document.getElementById('overlay');
+    const closeModalBtn = document.getElementById('cancelModal');
+
+    cancelBtn.addEventListener('click', () => {
+        cancelModal.style.display = 'block';
+        overlay.style.display = 'block';
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        cancelModal.style.display = 'none';
+        overlay.style.display = 'none';
+    });
+
+    overlay.addEventListener('click', () => {
+        cancelModal.style.display = 'none';
+        overlay.style.display = 'none';
+    });
+});
+</script>
 {% endblock %}

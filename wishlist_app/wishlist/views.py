@@ -21,9 +21,8 @@ def home(request):
 
 @login_required
 def wishlist_list(request):
-    wishlists = Wishlist.objects.filter(user=request.user)
+    wishlists = Wishlist.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
-
 
 @login_required
 def public_wishlist(request, code, name):
@@ -31,7 +30,6 @@ def public_wishlist(request, code, name):
     
     is_owner = request.user.is_authenticated and request.user == wishlist.user
 
-    # якщо це не власник і він залогінений — додаємо у Friends' Wishlists
     if request.user.is_authenticated and not is_owner:
         WishlistShare.objects.get_or_create(
             wishlist=wishlist,
@@ -49,8 +47,6 @@ def public_wishlist(request, code, name):
 
 @login_required
 def wishlist_detail(request, pk):
-    # wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
-    # return render(request, 'wishlist/wishlist_detail.html', {'wishlist': wishlist})
     wishlist = get_object_or_404(Wishlist, pk=pk)
     is_owner = wishlist.user == request.user
     return render(
@@ -93,13 +89,13 @@ def scrape_product_data(url):
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, 'html.parser')
 
-        # ===== Назва =====
+        # ===== Title =====
         title_tag = soup.find('h1') 
         if not title_tag: 
             title_tag = soup.find('h1', class_='product-title')
         title = title_tag.get_text(strip=True) if title_tag else ''
 
-        # ===== Ціна =====
+        # ===== Price =====
         prices = []
         for tag in soup.find_all(class_=re.compile(r'price', re.I)):
             text = tag.get_text(strip=True)
@@ -118,7 +114,7 @@ def scrape_product_data(url):
         else:
             price = None
 
-        # ===== Фото =====
+        # ===== Photo =====
         img_tag = soup.find('meta', property='og:image')
         image_url = img_tag['content'] if img_tag else ''
         print("DEBUG image_url:", image_url)
@@ -157,7 +153,7 @@ def item_create(request, wishlist_pk):
                     try:
                         headers = {
                             "User-Agent": "Mozilla/5.0",
-                            "Referer": item.url  # Додаємо реферер сторінки товару
+                            "Referer": item.url
                         }
                         img_resp = requests.get(data['image_url'], headers=headers, stream=True, timeout=10)
                         img_resp.raise_for_status()
@@ -189,12 +185,11 @@ def item_edit(request, pk):
     item = get_object_or_404(Item, pk=pk)
 
     if request.method == "POST":
-        old_url = item.url  # зберігаємо старий URL
+        old_url = item.url 
         form = ItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             item = form.save(commit=False)
 
-            # Якщо URL змінився або є новий — парсимо сторінку
             if item.url and item.url != old_url:
                 data = scrape_product_data(item.url)
 
@@ -228,7 +223,6 @@ def item_edit(request, pk):
 @login_required
 def item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
-    # Перевірка власника
     if item.wishlist.user != request.user:
         return redirect('wishlist:public_item_detail', pk=item.pk)
     return render(request, 'wishlist/item_detail.html', {'item': item})
@@ -249,7 +243,6 @@ def item_delete(request, pk):
 def reserve_item(request, pk):
     item = get_object_or_404(Item, pk=pk)
 
-    # Власник не може бронювати власні речі
     if item.wishlist.user == request.user:
         messages.error(request, "You cannot reserve your own gifts.")
         return redirect('wishlist:public_item_detail', pk=item.pk)
@@ -263,25 +256,6 @@ def reserve_item(request, pk):
         return redirect('wishlist:public_item_detail', pk=item.pk)
 
     return render(request, 'wishlist/item_confirm_reserve.html', {'item': item})
-# def reserve_item(request, pk):
-#     item = get_object_or_404(Item, pk=pk)
-
-#     # Власник не може бронювати власні речі
-#     if item.wishlist.user == request.user:
-#         messages.error(request, "You cannot reserve your own gifts.")
-#         return redirect('wishlist:public_item_detail', pk=item.pk)
-    
-#     if request.method == "POST":
-#         try:
-#             item.reserve(request.user)
-#             messages.success(request, f"You reserved a gift: {item.title}")
-#         except ValueError as e:
-#             messages.error(request, str(e))
-#         return redirect('wishlist:public_item_detail', pk=item.pk)
-#         # оновлюємо стан із бази
-
-#     # GET-запит — показуємо підтвердження
-#     return render(request, 'wishlist/item_confirm_reserve.html', {'item': item})
 
 @login_required
 def cancel_reservation(request, pk):
@@ -301,7 +275,7 @@ def cancel_reservation(request, pk):
 def friends_wishlists(request):
     wishlists = Wishlist.objects.filter(
         shares__shared_with=request.user
-    ).distinct()  # уникаємо дублікатів
+    ).distinct()  
     return render(request, 'wishlist/friends_wishlists.html', {'wishlists': wishlists})
 
 
@@ -310,14 +284,24 @@ def wishlist_edit_image(request, pk):
     wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
 
     if request.method == 'POST':
-        # Тільки поле image
         form = WishlistImageForm(request.POST, request.FILES, instance=wishlist)
         if form.is_valid():
             wishlist = form.save(commit=False)
             wishlist.save()
             return redirect('wishlist:wishlist_detail', pk=wishlist.pk)
     else:
-        # форма з вже існуючою картинкою
         form = WishlistImageForm(instance=wishlist)
 
     return render(request, 'wishlist/wishlist_edit_image.html', {'form': form, 'wishlist': wishlist})
+
+
+@login_required
+def wishlist_edit_name(request, pk):
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        new_name = request.POST.get('name', '').strip()
+        if new_name:
+            wishlist.name = new_name
+            wishlist.save()
+    return redirect('wishlist:wishlist_detail', pk=wishlist.pk)
