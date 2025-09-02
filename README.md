@@ -38,23 +38,23 @@ Users can register, create profiles, add their own preferences (likes and dislik
 ## 🖼️ Скріншоти
 
 - **Registration page**
-  ![Registration screenshot](screenshots/register.png)
+  ![Registration screenshot](wishlist_app/screenshots/register.png)
 
 - **All wishlists / main page**
-  ![Wishlists screenshot](screenshots/my_wishlists.png)
+  ![Wishlists screenshot](wishlist_app/screenshots/my_wishlists.png)
 
 - **User profile**
-  ![Profile screenshot](screenshots/profile.png)
+  ![Profile screenshot](wishlist_app/screenshots/profile.png)
 
 - **Wishlist example**
-  ![One wishlist screenshot](screenshots/wishlist.png)
+  ![One wishlist screenshot](wishlist_app/screenshots/wishlist.png)
 
 - **Adding new item to wishlist**
-  ![Add item screenshot](screenshots/adding_item.png)
+  ![Add item screenshot](wishlist_app/screenshots/adding_item.png)
 
 - **Friends wishlists**
-  ![Friends wishlist screenshot](screenshots/friends_wishlists.png)
+  ![Friends wishlist screenshot](wishlist_app/screenshots/friends_wishlists.png)
 
 - **Wishlist with reserved gifts**
-  ![Reserved items screenshot](screenshots/reserved_gifts.png)
+  ![Reserved items screenshot](wishlist_app/screenshots/reserved_gifts.png)
 ---
