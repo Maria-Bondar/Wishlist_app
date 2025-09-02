@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 20px;
     background: white;
-    display: flex; /* головне для сайдбар + контент */
+    display: flex;
     min-height: 100vh;
 }
 
@@ -41,7 +41,7 @@ h1 {
     margin-left: 10px;
 }
 
-/* Контейнер списку бажань */
+/* Container wishlist */
 .wishlist-container {
     display: flex;
     flex-wrap: wrap;
@@ -49,7 +49,7 @@ h1 {
     align-items: stretch;
 }
 
-/* Окрема картка */
+/* Separate card */
 .wishlist-item {
     display: flex;
     flex-direction: column;
@@ -61,7 +61,7 @@ h1 {
     border-radius: 8px;
     background: #fff;
     position: relative;
-    padding-top: 35px; /* Збільшений відступ зверху для кнопки */
+    padding-top: 35px; 
 }
 
 .add-wishlist-button {
@@ -80,13 +80,13 @@ h1 {
     transform: translateY(-2px);
 }
 
-/* Додаткові стилі для "Add new item" */
+/* Additional styles for "Add new item" */
 .wishlist-item.add-item {
     justify-content: center;
     align-items: center;
     min-height: 200px;
     cursor: pointer;
-    padding-top: 10px; /* Зменшений відступ для add-item */
+    padding-top: 10px; 
 }
 
 .add-item-link {
@@ -110,7 +110,7 @@ h1 {
     color: #555;
 }
 
-/* ВИПРАВЛЕНА кнопка видалення елемента */
+/* Fixed delete item button */
 .delete-item-btn {
     position: absolute;
     top: 8px;
@@ -139,7 +139,7 @@ h1 {
     border-color: #f44336;
 }
 
-/* Зображення */
+/* Image */
 .wishlist-img {
     width: 100%;
     height: 150px;
@@ -148,7 +148,7 @@ h1 {
     border-radius: 8px;
 }
 
-/* Заголовок і ціна */
+/* Title and price */
 .wishlist-title {
     margin: 10px 0 5px 0;
     text-align: center;
@@ -164,7 +164,7 @@ h1 {
     margin-top: auto;
 }
 
-/* Кнопка видалення списку */
+/* Delete list button */
 #wishlistDeleteBtn {
     background: #B22222;
     border: none;
@@ -180,7 +180,7 @@ h1 {
     background: #B22222;
 }
 
-/* Overlay для підтвердження видалення */
+/* Overlay to confirm deleting */
 #overlay {
     display: none;
     position: fixed;
@@ -192,7 +192,7 @@ h1 {
     z-index: 999;
 }
 
-/* ВИПРАВЛЕНА модалка видалення списку */
+/* Fixed list delete modal */
 #deleteConfirm {
     display: none;
     position: fixed;
@@ -216,7 +216,7 @@ h1 {
     color: #333;
 }
 
-/* Кнопки в модалці видалення списку */
+/* Buttons in the delete list modal*/
 #deleteConfirm .buttons {
     display: flex;
     justify-content: center;
@@ -242,7 +242,7 @@ h1 {
     background: #B22222;
 }
 
-/* ВИПРАВЛЕНА модалка видалення елемента */
+/* Fixed modal for deleting item */
 .item-delete-popup {
     display: none;
     position: fixed;
@@ -322,10 +322,10 @@ h1 {
 }
 
 .sidebar {
-    position: fixed; /* завжди видно */
+    position: fixed; 
     left: 0;
     top: 0;
-    width: 220px; /* можна змінити під себе */
+    width: 220px; 
     height: 100%;
     background-color: #386493;
     color: black;
@@ -352,16 +352,16 @@ h1 {
     text-decoration: underline;
 }
 
-/* Основний контент праворуч від сайдбару */
+/* Main content to the right of the sidebar */
 .content {
-    margin-left: 90px; /* такий же, як ширина сайдбару */
+    margin-left: 90px; 
     padding: 20px;
-    flex: 1; /* займає весь доступний простір */
+    flex: 1; 
     background-color: white;
     min-height: 100vh;
 }
 
-/* Заголовок сайдбару */
+/* Sidebar title */
 .sidebar-header {
     margin-bottom: 30px;
     text-align: center;
@@ -377,19 +377,19 @@ h1 {
 
 
 .sidebar-header a {
-    text-decoration: none; /* прибираємо підкреслення */
-    color: inherit;        /* використовуємо колір h2 */
+    text-decoration: none; 
+    color: inherit;        
 }
 
 .sidebar-header a:hover h2 {
-    text-decoration: underline; /* можна додати ефект при наведенні */
+    text-decoration: underline; 
     cursor: pointer;
 }
 
 .wishlists-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* відступ між картками */
+    gap: 20px;
 }
 
 .wishlist-card {
@@ -454,14 +454,14 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Заголовок */
+/* Wishlist title */
 .create-wishlist-page h1 {
     text-align: center;
     font-size: 28px;
     color: #2c3e50;
 }
 
-/* Форма */
+/* Wishlist form */
 .create-wishlist-page .wishlist-form input,
 .create-wishlist-page .wishlist-form textarea,
 .create-wishlist-page .wishlist-form select {
@@ -473,9 +473,9 @@ h1 {
     box-sizing: border-box;
 }
 
-/* Кнопка Save */
+/* Save button */
 .btn-save {
-    background-color: #87CEFA;
+    background-color: #357ae8;
     color: #fff;
     padding: 12px 20px;
     font-size: 16px;
@@ -488,11 +488,11 @@ h1 {
 }
 
 .btn-save:hover {
-    background-color: #3498db;;
+    background-color: #357ae8;
     transform: translateY(-2px);
 }
 
-/* Кнопка Back */
+/* Back button */
 .btn-back {
     background-color: #33739d;
     color: white;
@@ -510,7 +510,7 @@ h1 {
 }
 
 .create-wishlist-page p {
-    margin-top: 30px; /* відстань від форми до посилання */
+    margin-top: 30px; 
 }
 
 .edit-item-page {
@@ -539,14 +539,14 @@ h1 {
 
 .edit-item-form label {
     display: inline-block;
-    width: 120px; /* однакова ширина для всіх label */
+    width: 120px; 
     font-weight: bold;
     margin-right: 10px;
     vertical-align: top;
 }
 
 
-/* спеціально для поля з картинкою */
+/* especially for the picture field */
 .edit-item-form input[type="file"] {
     width: auto;
     margin-bottom: 10px;
@@ -557,7 +557,7 @@ h1 {
     padding-top: 15px;
 }
 
-/* Додати для блоку Current + Clear */
+/* Add for image block Current + Clear */
 .current-image {
     display: flex;
     align-items: center;
@@ -677,9 +677,9 @@ h1 {
 }
 
 .large-input {
-    font-size: 1.2em;      /* більший текст */
-    padding: 10px 12px;    /* більше простору всередині інпуту */
-    width: 100%;           /* займає всю ширину батьківського контейнера */
+    font-size: 1.2em;      
+    padding: 10px 12px;    
+    width: 100%;           
     box-sizing: border-box;
 }
 
@@ -708,7 +708,7 @@ h1 {
     margin-right: 10px;
   }
   .btn-secondary {
-    background: #007bff;
+    background: #357ae8;
     color: white;
     padding: 6px 12px;
     border: none;
@@ -743,7 +743,7 @@ form input {
 .item-buttons {
     margin-top: 20px;
     display: flex;
-    gap: 15px; /* відстань між кнопками */
+    gap: 15px;
 }
 
 .btn-edit, .btn-delete {
@@ -756,7 +756,7 @@ form input {
 }
 
 .btn-edit {
-    background-color: #33739d;
+    background-color: #357ae8;
 }
 
 .btn-edit:hover {
@@ -797,13 +797,13 @@ form input {
 
 .cancel-btn {
     position: relative;
-    z-index: 2; /* кнопка над фоном */
+    z-index: 2; 
 }
 
 .profile-img-small {
-    width: 60px;   /* ширина картинки */
-    height: 60px;  /* висота картинки */
-    border-radius: 50%; /* робимо круглою */
+    width: 60px;   
+    height: 60px;  
+    border-radius: 50%;
     object-fit: cover;
     margin-right: 10px;
 }
@@ -815,4 +815,33 @@ form input {
     max-width: 300px;
     margin-bottom: 20px;
     background-color: #f9f9f9;
+}
+
+.btn-google {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: #4285F4; /* Google blue */
+    color: white;
+    font-weight: 500;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-google:hover {
+    background-color: #357ae8;
+    transform: translateY(-2px);
+}
+
+.google-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+}
+
+.login-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center; 
 }

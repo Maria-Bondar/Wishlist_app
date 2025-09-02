@@ -9,6 +9,15 @@ from django.utils.deconstruct import deconstructible
 # Create your models here.
 
 class CustomUser(AbstractUser):
+    """
+    Custom user model extending Django's AbstractUser.
+    Uses email as the unique identifier instead of username.
+    
+    Fields:
+        username: Optional username (not unique)
+        email: Unique email address, used for login
+        date_of_birth: Optional date of birth
+    """
     username = models.CharField(max_length=150, unique=False, blank=True, null=True)
     email = models.EmailField(unique=True)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -22,6 +31,10 @@ class CustomUser(AbstractUser):
 
 @deconstructible
 class PathAndRename:
+    """
+    Callable class to rename uploaded files to a unique UUID-based name
+    while preserving file extension, and store in the specified subdirectory.
+    """
     def __init__(self, sub_path):
         self.path = sub_path
 
@@ -33,6 +46,12 @@ class PathAndRename:
 path_and_rename = PathAndRename("images/profile/")
 
 class Interest(models.Model):
+    """
+    Represents an interest (like or dislike) that can be linked to a user profile.
+    Fields:
+        name: Name of the interest
+        type: Either 'like' or 'dislike'
+    """
     LIKE = 'like'
     DISLIKE = 'dislike'
     TYPE_CHOICES = [
@@ -47,7 +66,17 @@ class Interest(models.Model):
         return self.name
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    """
+    Stores additional profile information for a user.
+    Fields:
+        user: One-to-one link to CustomUser
+        bio: User biography text
+        likes: Many-to-many relation with Interests (type='like')
+        dislikes: Many-to-many relation with Interests (type='dislike')
+        profile_pic: Profile picture upload
+        facebook, twitter, instagram: Optional social media handles
+    """
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="userprofile")
     bio = models.TextField(null=True, blank=True)
     likes = models.ManyToManyField(Interest, related_name='likes', blank=True)
     dislikes = models.ManyToManyField(Interest, related_name='dislikes', blank=True)

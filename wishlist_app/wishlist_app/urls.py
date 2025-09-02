@@ -7,8 +7,8 @@ from wishlist.views import home
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", home, name="home"),
-    path('accounts/', include('accounts.urls')),
-    path('wishlist/', include('wishlist.urls')),    
+    path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
+    path('wishlist/', include('wishlist.urls')),
 ]
 
 if settings.DEBUG:

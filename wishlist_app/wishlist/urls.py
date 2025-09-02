@@ -4,7 +4,6 @@ from . import views
 app_name = 'wishlist'
 
 urlpatterns = [
-    # path('', views.home, name='wishlist_list'),
     path('w/<str:code>/<slug:name>/', views.public_wishlist, name='public_view'),
     path('all/', views.wishlist_list, name='wishlist_list'),
     path('<int:pk>/', views.wishlist_detail, name='wishlist_detail'),

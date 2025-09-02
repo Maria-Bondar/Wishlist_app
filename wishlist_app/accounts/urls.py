@@ -11,4 +11,5 @@ urlpatterns = [
     path('profile/<int:pk>/', views.profile_view, name='profile'),
     path('create_profile/', views.create_profile, name='create_profile'),
     path('edit_profile/<int:pk>/', views.edit_profile, name='edit_profile'),
+    path("auth/google/", views.google_oauth_url, name="google_oauth"),
 ]

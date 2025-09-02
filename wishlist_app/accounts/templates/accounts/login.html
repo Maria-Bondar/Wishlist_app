@@ -28,9 +28,18 @@
             {% endfor %}
         {% endif %}
 
-        <p>
+        <div class="login-buttons">
             <button type="submit" class="btn-save">Login</button>
-        </p>
+            <span> or </span>
+            <a href="{% url 'accounts:google_oauth' %}" class="btn btn-google">
+                <img src="{% static 'images/google.svg' %}" alt="Google" class="google-icon">
+                Login with Google
+            </a>
+            <a href="{% url 'accounts:instagram_login' %}" class="btn btn-google">
+                <img src="{% static 'images/google.svg' %}" alt="Google" class="google-icon">
+                Login with Insta
+            </a>
+        </div>
     </form>
     <hr>
     <p class="form-note">Don't have an account?</p>

@@ -40,7 +40,9 @@
     {% endif %}
     
     <p>
+      {% if wishlist.user.userprofile %}
         <a href="{% url 'accounts:profile' wishlist.user.userprofile.pk %}">View full profile</a>
+      {% endif %}
     </p>
 </div>
 

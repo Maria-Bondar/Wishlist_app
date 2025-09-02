@@ -13,7 +13,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -70,7 +70,7 @@ DATABASES = {
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
         'TEST': {
-            'NAME': config('DB_NAME'),   # використовуємо ту ж саму базу
+            'NAME': config('DB_NAME'),   
             'MIRROR': 'default',
         }
     }
@@ -133,3 +133,12 @@ EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')  
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
+
+INSTAGRAM_CLIENT_ID = config("INSTAGRAM_CLIENT_ID")
+INSTAGRAM_CLIENT_SECRET = config("INSTAGRAM_CLIENT_SECRET")
+INSTAGRAM_TOKEN = config("INSTAGRAM_TOKEN")
+
+INSTAGRAM_REDIRECT_URI = "http://localhost:8000/accounts/auth/instagram/"

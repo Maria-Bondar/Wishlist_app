@@ -14,18 +14,25 @@ from .models import Item, Wishlist, WishlistShare
 
 
 # Create your views here.
-@login_required
-def home(request):
-    wishlists = Wishlist.objects.filter(user=request.user)
-    return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
 
 @login_required
 def wishlist_list(request):
+    """
+    Render a list of wishlists for the logged-in user, ordered by creation date.
+    """
     wishlists = Wishlist.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
 
 @login_required
 def public_wishlist(request, code, name):
+    """
+    Render a public view of a wishlist by its unique code.
+    If the user is logged in and not the owner, record a WishlistShare.
+    
+    Args:
+        code (str): Unique code identifying the wishlist.
+        name (str): Name of the wishlist (not used for query, only for URL).
+    """
     wishlist = get_object_or_404(Wishlist, code=code)
     
     is_owner = request.user.is_authenticated and request.user == wishlist.user
@@ -47,6 +54,11 @@ def public_wishlist(request, code, name):
 
 @login_required
 def wishlist_detail(request, pk):
+    """
+    Render the detail view of a wishlist for its owner.
+    Args:
+        pk (int): Primary key of the wishlist.
+    """
     wishlist = get_object_or_404(Wishlist, pk=pk)
     is_owner = wishlist.user == request.user
     return render(
@@ -60,6 +72,10 @@ def wishlist_detail(request, pk):
 
 @login_required
 def wishlist_create(request):
+    """
+    Handle creation of a new wishlist by the logged-in user.
+    Renders form and saves on POST.
+    """
     if request.method == 'POST':
         form = WishlistForm(request.POST)
         if form.is_valid():
@@ -74,6 +90,11 @@ def wishlist_create(request):
 
 @login_required
 def wishlist_delete(request, pk):
+    """
+    Handle deletion of a wishlist by its owner.
+    Args:
+        pk (int): Primary key of the wishlist to delete.
+    """
     wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
 
     if request.method == "POST":
@@ -83,6 +104,13 @@ def wishlist_delete(request, pk):
     return render(request, 'wishlist/wishlist_confirm_delete.html', {'wishlist': wishlist})
 
 def scrape_product_data(url):
+    """
+    Scrape product data from a given URL.
+    Args:
+        url (str): URL of the product page.
+    Returns:
+        dict: Dictionary containing 'title', 'price', and 'image_url'.
+    """
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
         resp = requests.get(url, headers=headers, timeout=10)
@@ -114,7 +142,7 @@ def scrape_product_data(url):
         else:
             price = None
 
-        # ===== Photo =====
+        # ===== Image =====
         img_tag = soup.find('meta', property='og:image')
         image_url = img_tag['content'] if img_tag else ''
         print("DEBUG image_url:", image_url)
@@ -130,6 +158,12 @@ def scrape_product_data(url):
 
 @login_required
 def item_create(request, wishlist_pk):
+    """
+    Create a new item for a wishlist.
+    If a URL is provided, attempt to scrape product data and image.
+    Args:
+        wishlist_pk (int): Primary key of the wishlist to add the item to.
+    """
     wishlist = get_object_or_404(Wishlist, pk=wishlist_pk, user=request.user)
 
     if request.method == 'POST':
@@ -171,6 +205,13 @@ def item_create(request, wishlist_pk):
 
 
 def public_item_detail(request, pk):
+    """
+    Render the public detail view of an item.
+    Args:
+        pk (int): Primary key of the item.
+    Returns:
+        HttpResponse: Rendered template with item details.
+    """
     item = get_object_or_404(Item, pk=pk)
     wishlist = item.wishlist  
 
@@ -182,6 +223,13 @@ def public_item_detail(request, pk):
     
 
 def item_edit(request, pk):
+    """
+    Edit an existing item. If the URL has changed, scrape product data and update image.
+    Args:
+        pk (int): Primary key of the item to edit.
+    Returns:
+        HttpResponse: Rendered template with edit form or redirects to item detail on success.
+    """
     item = get_object_or_404(Item, pk=pk)
 
     if request.method == "POST":
@@ -222,6 +270,14 @@ def item_edit(request, pk):
 
 @login_required
 def item_detail(request, pk):
+    """
+    Render the detail view of an item for the owner.
+    Redirect to public view if user is not the owner.
+    Args:
+        pk (int): Primary key of the item.
+    Returns:
+        HttpResponse: Rendered template with item details or redirect to public item view.
+    """
     item = get_object_or_404(Item, pk=pk)
     if item.wishlist.user != request.user:
         return redirect('wishlist:public_item_detail', pk=item.pk)
@@ -229,6 +285,13 @@ def item_detail(request, pk):
 
 @login_required
 def item_delete(request, pk):
+    """
+    Delete an item if the user is the owner of the wishlist.
+    Args:
+        pk (int): Primary key of the item.
+    Returns:
+        HttpResponse: Redirect to wishlist detail on deletion or render confirmation template.
+    """
     item = get_object_or_404(Item, pk=pk)
     if item.wishlist.user != request.user:
         return HttpResponseForbidden("You can't delete this item.")
@@ -241,6 +304,13 @@ def item_delete(request, pk):
 
 @login_required
 def reserve_item(request, pk):
+    """
+    Reserve an item for the logged-in user if not the owner.
+    Args:
+        pk (int): Primary key of the item to reserve.
+    Returns:
+        HttpResponse: Redirect to public item detail with success/error message or render confirmation template.
+    """
     item = get_object_or_404(Item, pk=pk)
 
     if item.wishlist.user == request.user:
@@ -259,6 +329,13 @@ def reserve_item(request, pk):
 
 @login_required
 def cancel_reservation(request, pk):
+    """
+    Cancel a reservation of an item for the logged-in user.
+    Args:
+        pk (int): Primary key of the item to cancel reservation.
+    Returns:
+        HttpResponse: Redirect to public item detail with success/error message or render confirmation template.
+    """
     item = get_object_or_404(Item, pk=pk)
 
     if request.method == "POST":
@@ -273,6 +350,11 @@ def cancel_reservation(request, pk):
 
 @login_required
 def friends_wishlists(request):
+    """
+    Render a list of wishlists shared with the logged-in user by friends.
+    Returns:
+        HttpResponse: Rendered template with friends' wishlists.
+    """
     wishlists = Wishlist.objects.filter(
         shares__shared_with=request.user
     ).distinct()  
@@ -281,6 +363,13 @@ def friends_wishlists(request):
 
 @login_required
 def wishlist_edit_image(request, pk):
+    """
+    Edit the image of a wishlist. Supports clearing the image.
+    Args:
+        pk (int): Primary key of the wishlist to edit.
+    Returns:
+        HttpResponse: Rendered template with image edit form or redirect to wishlist detail.
+    """
     wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
 
     if request.method == 'POST':
@@ -300,6 +389,13 @@ def wishlist_edit_image(request, pk):
 
 @login_required
 def wishlist_edit_name(request, pk):
+    """
+    Edit the name of a wishlist.
+    Args:
+        pk (int): Primary key of the wishlist to edit.
+    Returns:
+        HttpResponse: Redirect to wishlist detail page after name change.
+    """
     wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
 
     if request.method == "POST":
