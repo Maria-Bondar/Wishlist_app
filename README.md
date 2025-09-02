@@ -6,9 +6,10 @@ Users can register, create profiles, add their own preferences (likes and dislik
 
 ## 🚀 Functionality
 
-### 🔐 Користувачі та акаунти
+### 🔐 Users and accounts
 - Registration with confirmation via email.
 - Login/logout using email and password.
+- Also project includes the ability to log in using a Google account (OAuth 2.0).
 - Personal profile with the ability to edit:
   - upload an avatar;
   - add "likes" 🎁 and "dislikes" 🚫 (with automatic emojis);
