@@ -16,6 +16,14 @@ from .models import Item, Wishlist, WishlistShare
 # Create your views here.
 
 @login_required
+def home(request):
+    """
+    Render the home page showing all wishlists of the logged-in user.
+    """
+    wishlists = Wishlist.objects.filter(user=request.user)
+    return render(request, 'wishlist/wishlist_list.html', {'wishlists': wishlists})
+
+@login_required
 def wishlist_list(request):
     """
     Render a list of wishlists for the logged-in user, ordered by creation date.
