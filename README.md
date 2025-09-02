@@ -35,7 +35,7 @@ Users can register, create profiles, add their own preferences (likes and dislik
 
 ---
 
-## 🖼️ Скріншоти
+## 🖼️ Screenshots
 
 - **Registration page**
   ![Registration screenshot](wishlist_app/screenshots/register.png)

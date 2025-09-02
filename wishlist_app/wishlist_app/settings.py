@@ -1,4 +1,4 @@
-from decouple import config, Csv
+from decouple import config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -137,8 +137,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
 
-INSTAGRAM_CLIENT_ID = config("INSTAGRAM_CLIENT_ID")
-INSTAGRAM_CLIENT_SECRET = config("INSTAGRAM_CLIENT_SECRET")
-INSTAGRAM_TOKEN = config("INSTAGRAM_TOKEN")
+# INSTAGRAM_CLIENT_ID = config("INSTAGRAM_CLIENT_ID")
+# INSTAGRAM_CLIENT_SECRET = config("INSTAGRAM_CLIENT_SECRET")
+# INSTAGRAM_TOKEN = config("INSTAGRAM_TOKEN")
 
-INSTAGRAM_REDIRECT_URI = "http://localhost:8000/accounts/auth/instagram/"
